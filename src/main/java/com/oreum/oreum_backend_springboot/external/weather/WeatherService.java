@@ -26,10 +26,18 @@ public class WeatherService {
         var grid = GeoUtil.convertLatLonToGrid(lat, lon);
 
         // 날짜/시간 지정
-        String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String baseTime = "0600";
+        // String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String baseDate = "20250604";
+
+        String baseTime = "2300";
 
         // 데이터 요청
-        return weatherClient.fetchWeather(grid.getNx(), grid.getNy(), baseDate, baseTime);   
+        List<WeatherDTO> result = weatherClient.fetchWeather(grid.getNx(), grid.getNy(), baseDate, baseTime);
+
+        // ✅ 로그 출력
+        System.out.println("✅ 날씨 데이터 개수: " + result.size());
+        result.forEach(dto -> System.out.println(dto));
+
+        return result;
     }  
 }

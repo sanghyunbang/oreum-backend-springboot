@@ -1,57 +1,62 @@
 package com.oreum.oreum_backend_springboot.external.weather;
 
-import java.util.Arrays;
+
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-
+import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
 public class WeatherClient {
 
-    private final RestTemplate restTemplate;
+    private final WebClient.Builder webClientBuilder;
 
-    @Value("${external.kma.key}") // application.properties에서 주입
+    @Value("${external.kma.key}")
     private String serviceKey;
 
     public List<WeatherDTO> fetchWeather(int nx, int ny, String baseDate, String baseTime) {
-        String url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst" +
-            "?serviceKey=" + serviceKey +
-            "&pageNo=1&numOfRows=1000&dataType=JSON" +
-            "&base_date=" + baseDate +
-            "&base_time=" + baseTime +
-            "&nx=" + nx +
-            "&ny=" + ny;
+        String url = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
 
-        ResponseEntity<JsonNode> response = restTemplate.exchange(
-            url,
-            HttpMethod.GET,
-            null,
-            JsonNode.class
-        );
+        // WebClient 인스턴스 생성
+        WebClient webClient = webClientBuilder.baseUrl(url).build();
 
-        JsonNode items = response.getBody()
-                                  .path("response")
-                                  .path("body")
-                                  .path("items")
-                                  .path("item");
+        // JSON 응답을 요청 (.accept(MediaType.APPLICATION_JSON) 추가된 부분)
+        Mono<JsonNode> response = webClient.get()
+            .uri(uriBuilder -> uriBuilder
+                .queryParam("serviceKey", serviceKey)
+                .queryParam("pageNo", 1)
+                .queryParam("numOfRows", 1000)
+                .queryParam("dataType", "JSON")  // 이걸로 JSON 응답 지정 충분
+                .queryParam("base_date", baseDate)
+                .queryParam("base_time", baseTime)
+                .queryParam("nx", nx)
+                .queryParam("ny", ny)
+                .build())
+            .retrieve()  
+            .bodyToMono(JsonNode.class);
 
-        ObjectMapper mapper = new ObjectMapper();
-        try{
-            return Arrays.asList(mapper.treeToValue(items, WeatherDTO[].class));
-        } catch (JsonProcessingException e){
-            throw new RuntimeException("기상청 응답 파싱 실패", e);
-        }
+
+        // 응답에서 item 배열 꺼내기
+        JsonNode items = response.block()
+            .path("response")
+            .path("body")
+            .path("items")
+            .path("item");
+
+        return items.isArray()
+            ? StreamSupport.stream(items.spliterator(), false)
+                .map(WeatherDTO::fromJsonNode)
+                .collect(Collectors.toList())
+            : List.of();
     }
 }
