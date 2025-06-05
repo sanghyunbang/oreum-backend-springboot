@@ -59,4 +59,67 @@ public class WeatherClient {
                 .collect(Collectors.toList())
             : List.of();
     }
+
+    @Value("${external.kakao.rest.key}")
+    private String kakaoRestKey;
+
+    // public LocationDTO fetchCoordinatesFromKakao(String query) {
+    //     WebClient kakaoClient = webClientBuilder
+    //         .baseUrl("https://dapi.kakao.com")
+    //         .defaultHeader("Authorization", "KakaoAK " + kakaoRestKey)
+    //         .build();
+
+    //     JsonNode res = kakaoClient.get()
+    //         .uri(uriBuilder -> uriBuilder
+    //             .path("/v2/local/search/keyword.json")
+    //             .queryParam("query", query)
+    //             .build())
+    //         .retrieve()
+    //         .bodyToMono(JsonNode.class)
+    //         .block();
+
+    //     JsonNode first = res.path("documents").get(0);
+    //     double lon = first.path("x").asDouble();
+    //     double lat = first.path("y").asDouble();
+
+    //     return new LocationDTO(lat, lon);
+    // }
+
+    public LocationDTO fetchCoordinatesFromKakao(String query) {
+        System.out.println("📌 Kakao REST Key: KakaoAK " + kakaoRestKey);
+        System.out.println("📌 Query: " + query);
+
+        WebClient kakaoClient = webClientBuilder
+            .baseUrl("https://dapi.kakao.com")
+            .defaultHeader("Authorization", "KakaoAK " + kakaoRestKey)
+            .build();
+
+        try {
+            JsonNode res = kakaoClient.get()
+                .uri(uriBuilder -> uriBuilder
+                    .path("/v2/local/search/keyword.json")
+                    .queryParam("query", query)
+                    .build())
+                .retrieve()
+                .bodyToMono(JsonNode.class)
+                .block();
+
+            System.out.println("📌 Kakao API 응답: " + res.toPrettyString());
+
+            JsonNode first = res.path("documents").get(0);
+            double lon = first.path("x").asDouble();
+            double lat = first.path("y").asDouble();
+
+            return new LocationDTO(lat, lon);
+
+        } catch (Exception e) {
+            System.out.println("❌ Kakao API 요청 실패: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+
 }

@@ -16,14 +16,13 @@ public class WeatherService {
     
     private final WeatherClient weatherClient;
 
-    public List<WeatherDTO> getweatherForLocation(String mountainName) {
+    public List<WeatherDTO> getWeatherByMountainName(String mountainName) {
 
-        // 산 이름 -> 위경도 변환(kakao api) 쓸 예정
-        double lat = 37.6; // 예시 값
-        double lon = 126.9;
+        // 카카오 api 호출로 위경도 얻기
+        var coord = weatherClient.fetchCoordinatesFromKakao(mountainName);
 
         // 위경도 -> nx, ny 격자를 변환
-        var grid = GeoUtil.convertLatLonToGrid(lat, lon);
+        var grid = GeoUtil.convertLatLonToGrid(coord.getLat(),coord.getLon());
 
         // 날짜/시간 지정
         // String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -34,8 +33,8 @@ public class WeatherService {
         // 데이터 요청
         List<WeatherDTO> result = weatherClient.fetchWeather(grid.getNx(), grid.getNy(), baseDate, baseTime);
 
-        // ✅ 로그 출력
-        System.out.println("✅ 날씨 데이터 개수: " + result.size());
+        // 로그 출력
+        System.out.println("날씨 데이터 개수: " + result.size());
         result.forEach(dto -> System.out.println(dto));
 
         return result;
