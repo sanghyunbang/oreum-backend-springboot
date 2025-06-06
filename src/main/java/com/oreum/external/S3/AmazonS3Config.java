@@ -1,4 +1,4 @@
-package com.oreum.oreum_backend_springboot;
+package com.oreum.external.S3;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -32,4 +32,3 @@ public class AmazonS3Config {
                 .build();
     }
 }
-

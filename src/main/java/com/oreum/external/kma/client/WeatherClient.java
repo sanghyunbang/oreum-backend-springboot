@@ -1,4 +1,5 @@
-package com.oreum.oreum_backend_springboot.external.weather;
+package com.oreum.external.kma.client;
+
 
 
 import java.util.List;
@@ -6,11 +7,12 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.oreum.external.kma.dto.LocationDTO;
+import com.oreum.external.kma.dto.WeatherDTO;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -63,27 +65,6 @@ public class WeatherClient {
     @Value("${external.kakao.rest.key}")
     private String kakaoRestKey;
 
-    // public LocationDTO fetchCoordinatesFromKakao(String query) {
-    //     WebClient kakaoClient = webClientBuilder
-    //         .baseUrl("https://dapi.kakao.com")
-    //         .defaultHeader("Authorization", "KakaoAK " + kakaoRestKey)
-    //         .build();
-
-    //     JsonNode res = kakaoClient.get()
-    //         .uri(uriBuilder -> uriBuilder
-    //             .path("/v2/local/search/keyword.json")
-    //             .queryParam("query", query)
-    //             .build())
-    //         .retrieve()
-    //         .bodyToMono(JsonNode.class)
-    //         .block();
-
-    //     JsonNode first = res.path("documents").get(0);
-    //     double lon = first.path("x").asDouble();
-    //     double lat = first.path("y").asDouble();
-
-    //     return new LocationDTO(lat, lon);
-    // }
 
     public LocationDTO fetchCoordinatesFromKakao(String query) {
         System.out.println("📌 Kakao REST Key: KakaoAK " + kakaoRestKey);

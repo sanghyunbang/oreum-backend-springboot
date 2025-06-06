@@ -1,5 +1,4 @@
-package com.oreum.oreum_backend_springboot.Posts.services;
-
+package com.oreum.external.S3;
 import java.io.IOException;
 import java.util.UUID;
 

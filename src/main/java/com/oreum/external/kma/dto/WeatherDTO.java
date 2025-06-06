@@ -1,4 +1,4 @@
-package com.oreum.oreum_backend_springboot.external.weather;
+package com.oreum.external.kma.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,3 +35,4 @@ public class WeatherDTO {
         return dto;
     }
 }
+

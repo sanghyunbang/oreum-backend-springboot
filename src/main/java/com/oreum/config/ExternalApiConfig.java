@@ -1,4 +1,4 @@
-package com.oreum.oreum_backend_springboot.external.config;
+package com.oreum.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.oreum.oreum_backend_springboot.external.weather;
+package com.oreum.external.kma.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.oreum.oreum_backend_springboot.external.apiUtil.GeoUtil;
+import com.oreum.external.kma.client.WeatherClient;
+import com.oreum.external.kma.dto.WeatherDTO;
+import com.oreum.external.apiUtil.GeoUtil;
 
 import lombok.RequiredArgsConstructor;
 

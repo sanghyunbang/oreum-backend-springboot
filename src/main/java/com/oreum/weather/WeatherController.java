@@ -1,4 +1,4 @@
-package com.oreum.oreum_backend_springboot.external.weather;
+package com.oreum.weather;
 
 import java.util.List;
 
@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.oreum.external.kma.dto.MountainNameDTO;
+import com.oreum.external.kma.dto.WeatherDTO;
+import com.oreum.external.kma.service.WeatherService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,3 +30,4 @@ public class WeatherController {
 }
 
 }
+

@@ -1,5 +1,4 @@
-package com.oreum.oreum_backend_springboot.external.apiUtil;
-
+package com.oreum.external.apiUtil;
 public class GeoUtil {
 
     /**
@@ -73,3 +72,4 @@ public class GeoUtil {
         }
     }
 }
+

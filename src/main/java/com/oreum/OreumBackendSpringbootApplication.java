@@ -1,4 +1,4 @@
-package com.oreum.oreum_backend_springboot;
+package com.oreum;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
