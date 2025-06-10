@@ -49,8 +49,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             UserRecordDTO newUser = new UserRecordDTO();
             newUser.setEmail(email);
     
-            newUser.setName(oAuth2Response.getName());          // ✅ 실명 저장
-            newUser.setNickname("익명");                        // ✅ 초기 닉네임 기본값 설정 (수정 가능)
+            newUser.setName(oAuth2Response.getName());          //  실명 저장
+            newUser.setNickname("익명");                        //  초기 닉네임 기본값 설정 (수정 가능)
             newUser.setRole("user");
             newUser.setStatus("active");
             newUser.setPoints(0);

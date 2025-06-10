@@ -35,11 +35,11 @@ public class CustomSuccessHandler extends SavedRequestAwareAuthenticationSuccess
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         String role = iterator.hasNext() ? iterator.next().getAuthority() : "ROLE_USER";
 
-        // ✅ JWT 생성
+        // JWT 생성
         String accessToken = jwtUtil.createJwt(username, role, 1000 * 60 * 30L); // 30분
         String refreshToken = jwtUtil.createJwt(username, role, 1000L * 60 * 60 * 24 * 14); // 14일
 
-        // ✅ 쿠키로도 저장 (옵션)
+        // 쿠키로도 저장 (옵션)
         response.addCookie(createCookie("accessToken", accessToken, false));
         response.addCookie(createCookie("refreshToken", refreshToken, true));
 
@@ -47,12 +47,12 @@ public class CustomSuccessHandler extends SavedRequestAwareAuthenticationSuccess
         System.out.println("📦 accessToken=" + accessToken);
         System.out.println("📦 refreshToken=" + refreshToken);
 
-        // ✅ 프론트에 전달할 redirect URI 구성
+        // 프론트에 전달할 redirect URI 구성
         String redirectUrl = "http://localhost:3000/oauth2/redirect"
                 + "?token=" + accessToken
                 + "&nickname=" + username;
 
-        // ✅ 프론트로 리다이렉트
+        // 프론트로 리다이렉트
         response.sendRedirect(redirectUrl);
     }
 

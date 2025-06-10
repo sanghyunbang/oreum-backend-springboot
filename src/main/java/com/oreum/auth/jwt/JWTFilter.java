@@ -59,6 +59,7 @@ public class JWTFilter extends OncePerRequestFilter {
                     customOAuth2User, null, customOAuth2User.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
+            System.out.println("최종인증객체: "+ SecurityContextHolder.getContext().getAuthentication());
             System.out.println("✅ Authentication successful for: " + username);
         } catch (Exception e) {
             System.out.println("❌ Error parsing JWT: " + e.getMessage());

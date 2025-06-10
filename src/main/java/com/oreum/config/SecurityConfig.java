@@ -58,7 +58,7 @@ public class SecurityConfig {
 
             //  인가 정책
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login/**", "/oauth2/**", "/public/**").permitAll()
+                .requestMatchers("/", "api/**","/api/community/**", "/community/**","/login/**", "/oauth2/**", "/public/**").permitAll()
                 .anyRequest().authenticated()
             )
 
@@ -68,7 +68,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // ✅ CORS 설정
+    //  CORS 설정
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -82,17 +82,17 @@ public class SecurityConfig {
         return source;
     }
 
-    // Cors 설정
-    public WebMvcConfigurer corsConfigurer(){
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:3000")
-                    .allowedMethods("*")
-                    .allowCredentials(true);
-            }
-        };
-    }
+    //Cors 설정
+    // public WebMvcConfigurer corsConfigurer(){
+    //     return new WebMvcConfigurer() {
+    //         @Override
+    //         public void addCorsMappings(CorsRegistry registry) {
+    //             registry.addMapping("/**")
+    //                 .allowedOrigins("http://localhost:3000")
+    //                 .allowedMethods("*")
+    //                 .allowCredentials(true);
+    //         }
+    //     };
+    // }
 }
  
