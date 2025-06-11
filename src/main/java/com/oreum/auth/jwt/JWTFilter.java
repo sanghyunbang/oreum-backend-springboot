@@ -36,7 +36,6 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         //2. 헤더가 없으면 쿠키에서 찾기(fallback)
-
         if(token == null){
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
