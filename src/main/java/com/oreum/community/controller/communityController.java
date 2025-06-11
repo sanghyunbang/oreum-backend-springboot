@@ -24,7 +24,7 @@ public class communityController {
 
     private final communityMapper _comm;
     @GetMapping("/{communityName}")
-    public ResponseEntity<communityDTO> getCommunityName(@PathVariable String communityName) {
+    public ResponseEntity<communityDTO> getCommunityName(@PathVariable("communityName") String communityName) {
         System.out.println("들어오긴함");
         communityDTO dto = _comm.getCommunity(communityName);
         return ResponseEntity.ok(dto);
