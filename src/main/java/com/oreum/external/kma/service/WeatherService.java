@@ -25,10 +25,11 @@ public class WeatherService {
 
         // 위경도 -> nx, ny 격자를 변환
         var grid = GeoUtil.convertLatLonToGrid(coord.getLat(),coord.getLon());
+        System.out.println("위경도 변환 여부"+ grid);
 
         // 날짜/시간 지정
         // String baseDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String baseDate = "20250604";
+        String baseDate = "20250610";
 
         String baseTime = "2300";
 
