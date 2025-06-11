@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,21 +49,11 @@ public class postController {
     
     //게시글 등록
     @PostMapping("/insert")
-    public ResponseEntity<String> insertposts( 
-    		@RequestParam("title") String title,
-    	    @RequestParam("content") String content,
-    	    @RequestParam("type") String type,
-    	    @RequestParam("userId") int userId) {
+    public ResponseEntity<?> insertposts(@RequestBody PostsDTO postDto) {
     	
-    	System.out.println("포스트 진입");
-    	
-    	PostsDTO post = new PostsDTO();
-        post.setTitle(title);
-        post.setContent(content);
-        post.setType(type);
-        post.setUserId(userId);
-    	
-        pd.insertpost(post);
+    	System.out.println("       ☆☆☆☆☆☆☆☆☆☆ 포스트 진입 성공 ☆☆☆☆☆☆☆☆☆☆       ");
+
+    	pd.insertpost(postDto);
         
         return ResponseEntity.ok("게시글 등록 완료");
     }

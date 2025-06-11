@@ -11,4 +11,6 @@ public interface UserDao {
     UserRecordDTO findByEmail(@Param("email") String email);
     void insertUser(UserRecordDTO user);
     void updateLoginInfo(UserRecordDTO user);
+    Integer selectUserIdByEmail(@Param("email") String email);
+    
 }

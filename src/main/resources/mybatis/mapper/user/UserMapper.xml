@@ -49,5 +49,11 @@
             last_login = #{lastLogin}
         WHERE email = #{email}
     </update>
+    
+    <select id="selectUserIdByEmail" parameterType="string" resultType="Integer">
+        SELECT id
+        FROM users
+        WHERE email = #{email}
+    </select>
 
 </mapper>
