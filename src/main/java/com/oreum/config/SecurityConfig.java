@@ -3,6 +3,9 @@ package com.oreum.config;
 import com.oreum.auth.jwt.JWTFilter;
 import com.oreum.auth.jwt.JWTUtil;
 import com.oreum.auth.service.CustomOAuth2UserService;
+
+import jakarta.servlet.http.HttpServletResponse;
+
 import com.oreum.auth.jwt.CustomOAuth2FailureHandler;
 import com.oreum.auth.jwt.CustomSuccessHandler;
 
@@ -48,6 +51,16 @@ public class SecurityConfig {
             .formLogin(form -> form.disable())
             .httpBasic(basic -> basic.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            
+            // 인증 실패 시 HTML이 아니라 401 JSON 응답
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                })
+            )
+
 
             //  OAuth2 로그인 처리
             .oauth2Login(oauth -> oauth
