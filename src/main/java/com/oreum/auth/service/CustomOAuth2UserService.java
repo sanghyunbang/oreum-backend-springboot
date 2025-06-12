@@ -15,6 +15,7 @@ import com.oreum.auth.dto.OAuth2Response;
 import com.oreum.auth.dto.UserDTO;
 import com.oreum.auth.dto.UserRecordDTO;
 import com.oreum.auth.mapper.UserDao;
+import com.oreum.auth.users.util.NickNameUtil;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,12 +46,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         UserRecordDTO user = userMapper.findByEmail(email);
     
         if (user == null) {
+
             // 신규 사용자 저장
             UserRecordDTO newUser = new UserRecordDTO();
             newUser.setEmail(email);
     
-            newUser.setName(oAuth2Response.getName());          //  실명 저장
-            newUser.setNickname("익명");                        //  초기 닉네임 기본값 설정 (수정 가능)
+            newUser.setName(oAuth2Response.getName());// 실명 저장
+            newUser.setNickname(NickNameUtil.generateRandomNickname());      // 랜덤하게 Unique하게 생성
+            
             newUser.setRole("user");
             newUser.setStatus("active");
             newUser.setPoints(0);
