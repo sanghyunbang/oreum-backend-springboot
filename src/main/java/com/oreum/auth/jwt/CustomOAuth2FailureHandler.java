@@ -18,15 +18,15 @@ public class CustomOAuth2FailureHandler implements AuthenticationFailureHandler 
             HttpServletResponse response,
             AuthenticationException exception) throws IOException, ServletException {
 
-        // ✅ 세션 무효화 (재시도 시 stale한 인증 정보 방지)
+        // 세션 무효화 (재시도 시 stale한 인증 정보 방지)
         if (request.getSession(false) != null) {
             request.getSession(false).invalidate();
         }
 
-        // ✅ 로그: 이유 출력
+        // 로그: 이유 출력
         System.out.println("소셜 로그인 실패: " + exception.getMessage());
 
-        // ✅ 프론트로 리다이렉트 (React에서 에러 메시지 표시 가능)
+        // 프론트로 리다이렉트 (React에서 에러 메시지 표시 가능)
         response.sendRedirect("/login?error=oauth2");
     }
 }
