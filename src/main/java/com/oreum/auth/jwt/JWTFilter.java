@@ -59,6 +59,7 @@ public class JWTFilter extends OncePerRequestFilter {
             if (jwtUtil.isExpired(token)){
                 System.out.println("Token is expired");
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Access token expired!");
+                return;
             }
             String username = jwtUtil.getUsername(token);
             String role = jwtUtil.getRole(token);
