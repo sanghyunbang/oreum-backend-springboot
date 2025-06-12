@@ -1,11 +1,21 @@
 package com.oreum.posts.dao;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Param;
 
 import com.oreum.posts.dto.PostsDTO;
 
 @Mapper
 public interface PostsDAO {
-	void insertpost(PostsDTO Pd);
+		
+    void insertpost(PostsDTO postDTO);
+
+	void insertCurationDetail(PostsDTO postDTO);
+
+	void insertPostMedia(@Param("postId") int postID,
+						 @Param("mediaType") String mediaType,
+						 @Param("mediaUrl") String mediaUrl);
 
 }
