@@ -1,35 +1,35 @@
-package com.oreum.weather;
+// package com.oreum.weather;
 
-import java.util.List;
-import java.util.Map;
+// import java.util.List;
+// import java.util.Map;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+// import org.springframework.web.bind.annotation.CrossOrigin;
+// import org.springframework.web.bind.annotation.GetMapping;
+// import org.springframework.web.bind.annotation.PostMapping;
+// import org.springframework.web.bind.annotation.RequestBody;
+// import org.springframework.web.bind.annotation.RequestMapping;
+// import org.springframework.web.bind.annotation.RestController;
 
-import com.oreum.external.kma.dto.MountainNameDTO;
-import com.oreum.external.kma.dto.WeatherDTO;
-import com.oreum.external.kma.service.WeatherService;
+// import com.oreum.external.kma.dto.MountainNameDTO;
+// import com.oreum.external.kma.dto.WeatherDTO;
+// import com.oreum.external.kma.service.WeatherService;
 
-import lombok.RequiredArgsConstructor;
+// import lombok.RequiredArgsConstructor;
 
-@RestController
-@RequiredArgsConstructor
-@RequestMapping("/weather")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-public class WeatherController {
+// @RestController
+// @RequiredArgsConstructor
+// @RequestMapping("/weather")
+// @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+// public class WeatherController {
 
-    private final WeatherService weatherService;
+//     private final WeatherService weatherService;
 
-    @PostMapping("/summit")
-    public Map<String, List<WeatherDTO>> getSummitWeather(@RequestBody MountainNameDTO request) {
-        String mountainName = request.getMountainName();
-        return weatherService.getWeatherByMountainName(mountainName);
-    }
+//     @PostMapping("/summit")
+//     public Map<String, List<WeatherDTO>> getSummitWeather(@RequestBody MountainNameDTO request) {
+//         String mountainName = request.getMountainName();
+//         return weatherService.getWeatherByMountainName(mountainName);
+//     }
 
 
-}
+// }
 
