@@ -67,8 +67,8 @@ public class WeatherClient {
 
 
     public LocationDTO fetchCoordinatesFromKakao(String query) {
-        System.out.println("📌 Kakao REST Key: KakaoAK " + kakaoRestKey);
-        System.out.println("📌 Query: " + query);
+        System.out.println("Kakao REST Key: KakaoAK " + kakaoRestKey);
+        System.out.println("Query: " + query);
 
         WebClient kakaoClient = webClientBuilder
             .baseUrl("https://dapi.kakao.com")
@@ -85,7 +85,7 @@ public class WeatherClient {
                 .bodyToMono(JsonNode.class)
                 .block();
 
-            System.out.println("📌 Kakao API 응답: " + res.toPrettyString());
+            System.out.println("[O] Kakao API 응답: " + res.toPrettyString());
 
             JsonNode first = res.path("documents").get(0);
             double lon = first.path("x").asDouble();
@@ -94,7 +94,7 @@ public class WeatherClient {
             return new LocationDTO(lat, lon);
 
         } catch (Exception e) {
-            System.out.println("❌ Kakao API 요청 실패: " + e.getMessage());
+            System.out.println("[X] Kakao API 요청 실패: " + e.getMessage());
             e.printStackTrace();
             return null;
         }
