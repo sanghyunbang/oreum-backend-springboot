@@ -74,9 +74,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
             System.out.println("최종인증객체: "+ SecurityContextHolder.getContext().getAuthentication());
-            System.out.println("✅ Authentication successful for: " + username);
+            System.out.println("[O] Authentication successful for: " + username);
         } catch (Exception e) {
-            System.out.println("❌ Error parsing JWT: " + e.getMessage());
+            System.out.println("[X] Error parsing JWT: " + e.getMessage());
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired JWT");
             return;
         }

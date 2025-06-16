@@ -42,7 +42,7 @@ public class JWTUtil {
     public String getUsername(String token) {
         try {
             String username = parseClaims(token).get("username", String.class);
-            System.out.println("🔍 Extracted username: " + username);
+            System.out.println("Extracted username: " + username);
             return username;
         } catch (Exception e) {
             System.out.println("[X] Failed to extract username: " + e.getMessage());
@@ -53,7 +53,7 @@ public class JWTUtil {
     public String getRole(String token) {
         try {
             String role = parseClaims(token).get("role", String.class);
-            System.out.println("🔍 Extracted role: " + role);
+            System.out.println("Extracted role: " + role);
             return role;
         } catch (Exception e) {
             System.out.println("[X] Failed to extract role: " + e.getMessage());
