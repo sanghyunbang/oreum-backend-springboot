@@ -8,7 +8,6 @@
     <select id="getCommunity" parameterType="string" resultType="com.oreum.community.dto.communityDTO">
         SELECT
             b.board_id AS boardId,
-            b.name,
             b.title,
             b.description,
             b.creator_id AS creatorId,
@@ -19,8 +18,18 @@
             b.updated_at AS updatedAt
         FROM boards b
         JOIN users u ON b.creator_id = u.user_id
-        WHERE b.name = #{name}
+        WHERE b.title = #{name}
     </select>
+<select id="getAllCommunities" resultType="com.oreum.community.dto.communityDTO">
+  SELECT * FROM boards;
+</select>
+<insert id="insertCommunity" parameterType="com.oreum.community.dto.communityDTO">
+    INSERT INTO boards
+    (title, description, creator_id, thumbnail_url, is_private, created_at, updated_at)
+    VALUES
+    (#{title}, #{description}, #{creatorId}, #{thumbnailUrl}, #{isPrivate}, #{createdAt}, #{updatedAt});
+</insert>
+
 
    
 </mapper>

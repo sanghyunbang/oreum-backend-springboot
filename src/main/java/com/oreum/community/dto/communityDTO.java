@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 public class communityDTO {
     private int boardId;
-    private String name;
     private String title;
     private String description;
     private int creatorId;

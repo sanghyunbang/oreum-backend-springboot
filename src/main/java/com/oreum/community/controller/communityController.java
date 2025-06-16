@@ -1,10 +1,17 @@
 package com.oreum.community.controller;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.oreum.auth.dto.CustomOAuth2User;
+import com.oreum.auth.mapper.UserDao;
 import com.oreum.community.dto.communityDTO;
 import com.oreum.community.mapper.communityMapper;
 
@@ -12,6 +19,8 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 
@@ -23,13 +32,53 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class communityController {
 
     private final communityMapper _comm;
+    private final UserDao userMapper;
+    
     @GetMapping("/{communityName}")
     public ResponseEntity<communityDTO> getCommunityName(@PathVariable("communityName") String communityName) {
-        System.out.println("들어오긴함");
+        System.out.println("커뮤이름 호출 들어오긴함");
         communityDTO dto = _comm.getCommunity(communityName);
         return ResponseEntity.ok(dto);
     }
     
+    @PostMapping("/insertpost")
+    public ResponseEntity<?> insertcom(@RequestBody communityDTO dto, Authentication authentication) {
+        
+    	System.out.println("insert 들어온 데이터 : " + dto);
+    	if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        // OAuth2 로그인 사용자가 맞는지 확인
+        if (authentication.getPrincipal() instanceof CustomOAuth2User user) {
+            // 로그인 사용자 이메일에서 사용자 정보 추출
+            String email = user.getUserName();
+            System.out.println("겟 유저네임 : "+email);
+            int creatorId = userMapper.selectUserIdByEmail(email);
+            System.out.println("작성자 id" + creatorId);
+            String nickname = userMapper.userNameByuserId(creatorId);
+            System.out.println("닉네임 : " + nickname);
+
+            // dto에 필요한 값 세팅
+            dto.setCreatorId(creatorId);
+            dto.setCreatorNickname(nickname);
+            dto.setCreatedAt(LocalDateTime.now());
+            dto.setUpdatedAt(LocalDateTime.now());
+
+            _comm.insertCommunity(dto);
+
+            return ResponseEntity.ok().build();
+        }
+
+        return ResponseEntity.status(400).body("잘못된 사용자 정보입니다.");
+    }
+
     
+    @GetMapping("/list")
+    public ResponseEntity<List<communityDTO>> getCommunityList() {
+    	System.out.println("커뮤니티 리스트 호출됨");
+        List<communityDTO> list = _comm.getAllCommunities();
+        return ResponseEntity.ok(list);
+    }
     
 }
