@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 
 @Component
 public class CustomSuccessHandler implements AuthenticationSuccessHandler {
@@ -48,12 +47,12 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
                 .findFirst()
                 .orElse("ROLE_USER");
 
-        // 4. JWT 생성 (30분, 14일)
-        String accessToken = jwtUtil.createJwt(username, nickname, role, 1000L * 60 * 30 * 2000); // 30분*2000
+        // 4. JWT 생성 (access: 30분, refresh: 14일)
+        String accessToken = jwtUtil.createJwt(username, nickname, role, 1000L * 60 * 30 * 1000); // 30분 * 1000
         String refreshToken = jwtUtil.createJwt(username, nickname, role, 1000L * 60 * 60 * 24 * 14); // 14일
 
-        // 5. 쿠키 생성 및 등록 (setHeader는 제거)
-        response.addCookie(createCookie("accessToken", accessToken, false));
+        // 5. 보안 쿠키로 JWT 저장 (HttpOnly = true)
+        response.addCookie(createCookie("accessToken", accessToken, true)); // ⬅ HttpOnly로 수정
         response.addCookie(createCookie("refreshToken", refreshToken, true));
 
         // 6. 디버깅 로그
@@ -62,22 +61,21 @@ public class CustomSuccessHandler implements AuthenticationSuccessHandler {
         System.out.println("accessToken=" + accessToken);
         System.out.println("refreshToken=" + refreshToken);
 
-        // 7. 프론트엔드 리다이렉트 URL
+        // 7. 리다이렉트: 보안 강화를 위해 토큰은 URL에 포함시키지 않음
         String redirectUrl = "http://localhost:3000/oauth2/redirect"
-                + "?token=" + accessToken
-                + "&email=" + username
+                + "?email=" + username
                 + "&nickname=" + URLEncoder.encode(nickname, StandardCharsets.UTF_8);
 
         response.sendRedirect(redirectUrl);
     }
 
+    // 보안 설정이 적용된 쿠키 생성 메서드
     private Cookie createCookie(String key, String value, boolean httpOnly) {
         Cookie cookie = new Cookie(key, value);
         cookie.setPath("/");
         cookie.setMaxAge(60 * 60 * 24 * 14); // 14일
-        cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(false); // 운영 배포 시 true
-        // cookie.setDomain("localhost"); // 생략: localhost일 때는 설정하지 않는 것이 안전
+        cookie.setHttpOnly(httpOnly);       // JS 접근 차단
+        cookie.setSecure(false);            // 배포 시에는 true로 (https)
         return cookie;
     }
 }
