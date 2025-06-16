@@ -13,32 +13,28 @@ java {
 	}
 }
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
-
 repositories {
 	mavenCentral()
 }
 
 dependencies {
-	// Spring Boot starters
+	// Spring Boot Starters
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	
 
-	// ✅ WebClient용 추가 설정 
+	// ✅ RestTemplate + Apache HttpClient4 (호환성용)
+	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+
+	// ✅ WebClient 필요 시 (추가로)
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
+	// MyBatis
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
 	testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.4'
-
 
 	// DB
 	runtimeOnly 'com.mysql:mysql-connector-j'
@@ -47,24 +43,19 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	// 테스트
+	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// aws S3 관련
-    implementation 'software.amazon.awssdk:s3:2.20.89' // 최신 버전 권장
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.574'
+	// AWS S3
+	implementation 'software.amazon.awssdk:s3:2.20.89'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.574'
 
-	//SWAGGER 관련
-    // implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0' // 최신 버전 확인 필요 -> webflux와 충돌돌
-     
-	// JWT 버전: 0.12.3
-    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
-
-
+	// JWT
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 }
 
 tasks.named('test') {
@@ -72,24 +63,5 @@ tasks.named('test') {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.compilerArgs += ['-parameters']
+	options.compilerArgs += ['-parameters']
 }
-
-// sourceSets {
-//     main {
-//         resources {
-//             srcDir 'src/main/resources'
-//             include '**/*.csv'
-//         }
-//     }
-// }
-
-// tasks.withType(JavaCompile).configureEach {
-//     options.compilerArgs += ['-parameters']
-// }
-
-// tasks.named('processResources') {
-//     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-// }
-
-
