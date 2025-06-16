@@ -18,7 +18,7 @@
             b.updated_at AS updatedAt
         FROM boards b
         JOIN users u ON b.creator_id = u.user_id
-        WHERE b.title = #{name}
+        WHERE b.title = #{title}
     </select>
 <select id="getAllCommunities" resultType="com.oreum.community.dto.communityDTO">
   SELECT * FROM boards;
