@@ -43,7 +43,7 @@ public class postController {
         }
         // S3에 업로드 하고 URL 받아서 저장
         if (mediaFiles != null && !mediaFiles.isEmpty()){
-            for (MultipartFile file : mediaFiles) {
+            for (MultipartFile file : mediaFiles) { 
                 String url = s3Service.uploadFile(file);
                 
                 String mediaType = file.getContentType().startsWith("image") ? "image" : "video";

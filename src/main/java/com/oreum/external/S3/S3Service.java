@@ -32,10 +32,17 @@ public class S3Service {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
             amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
+            amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
+            // bucket: 어디에 업로드할지 (폴더 아님, S3의 저장 공간)
+            // fileName: S3에 저장될 파일 이름 (중복 방지됨)
+            // file.getInputStream(): 실제 파일의 바이트 스트림
+            // metadata: 파일의 추가 정보 (크기, 타입 등)
+
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
         }
 
+        // 업로드가 성공했으면, 그 파일의 S3 URL을 반환
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 }
