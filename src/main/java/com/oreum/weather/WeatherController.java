@@ -1,6 +1,7 @@
 package com.oreum.weather;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,16 +19,17 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/weather")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class WeatherController {
 
     private final WeatherService weatherService;
 
     @PostMapping("/summit")
-    @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
-    public List<WeatherDTO> getSummitWeather(@RequestBody MountainNameDTO request) {
-    String mountainName = request.getMountainName();
-    return weatherService.getWeatherByMountainName(mountainName);
-}
+    public Map<String, List<WeatherDTO>> getSummitWeather(@RequestBody MountainNameDTO request) {
+        String mountainName = request.getMountainName();
+        return weatherService.getWeatherByMountainName(mountainName);
+    }
+
 
 }
 
