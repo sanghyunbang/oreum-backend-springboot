@@ -75,4 +75,8 @@ public class UserController {
             "role", user.getAuthorities().iterator().next().getAuthority()
         ));
     }
+    
+    
+    
+    
 }
