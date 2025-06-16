@@ -74,3 +74,22 @@ tasks.named('test') {
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs += ['-parameters']
 }
+
+// sourceSets {
+//     main {
+//         resources {
+//             srcDir 'src/main/resources'
+//             include '**/*.csv'
+//         }
+//     }
+// }
+
+// tasks.withType(JavaCompile).configureEach {
+//     options.compilerArgs += ['-parameters']
+// }
+
+// tasks.named('processResources') {
+//     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+// }
+
+
