@@ -9,13 +9,4 @@
   <select id="findGoods" resultType="com.oreum.goods.dto.goodsDTO">
   	SELECT * FROM goods WHERE id=#{id}
   </select>
-  <select id="findGoodsOptions" resultType="com.oreum.goods.dto.goodsDTO">
-  	SELECT * FROM goods_options WHERE id=#{id}
-  </select>
-  <select id="existsGoods" resultType="boolean">
-    SELECT EXISTS( SELECT 1 FROM cart WHERE user_id = #{userId} AND goods_option_id = #{goodsOptionId})
-  </select>
-  <insert id="addGoods">
-  	INSERT INTO cart (user_id, goods_option_id, qty) VALUES (#{user_id}, #{goods_option_id}, #{qty});
-  </insert>
 </mapper>

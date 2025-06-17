@@ -1,11 +1,10 @@
 package com.oreum.goods.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,40 +13,79 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.oreum.goods.dao.GoodsCartDAO;
+import com.oreum.goods.dao.GoodsOptionDAO;
 import com.oreum.goods.dao.GoodsOrderDAO;
 import com.oreum.goods.dao.goodsDAO;
+import com.oreum.goods.dto.CartRequest;
+import com.oreum.goods.dto.GoodsCartDTO;
 import com.oreum.goods.dto.goodsDTO;
+import com.oreum.goods.dto.goodsOptionDTO;
+
 
 @RestController
 @RequestMapping("/api/goods")
 @CrossOrigin(origins="http://localhost:3000",allowCredentials = "true")
 public class GoodsController {
 	
-	@Autowired goodsDAO gdao;
+	@Autowired goodsDAO gDAO;
+	@Autowired GoodsOptionDAO goptDAO;
+	@Autowired GoodsCartDAO gcDAO;
 	@Autowired GoodsOrderDAO goDAO;
 	
 	@GetMapping("/listAll")
 	public List<goodsDTO> doListAll() {
-	    return gdao.findAllGoods();
+	    return gDAO.findAllGoods();
 	}
 	
 	@GetMapping("/detailList")
-	public goodsDTO doDetailList(@RequestParam("id") int id){
-		goodsDTO fgoods = gdao.findGoods(id).get(0);
+	public List<goodsDTO> doDetailList(@RequestParam("id") int id){
+		List<goodsDTO> fgoods = gDAO.findGoods(id);
 		return fgoods;
 	}
 	@GetMapping("/detailListOpt")
-	public goodsDTO doDetailListOpt(@RequestParam("id") int id){
-		goodsDTO fgoods = gdao.findGoodsOptions(id).get(0);
-		return fgoods;
+	public List<goodsOptionDTO> doDetailListOpt(@RequestParam("id") int id){
+		List<goodsOptionDTO> fgoodsOpt = goptDAO.findGoodsOptions(id);
+		return fgoodsOpt;
 	}
 	
+	@PostMapping("/cartList")
+	public List<GoodsCartDTO> doCartList(@RequestBody Map<String,String> req){
+		String id = req.get("id");
+		List<GoodsCartDTO> fcart = gcDAO.findUserCart(Integer.parseInt(id));
+		return fcart;
+	}
 	@PostMapping("/cartAdd")
-	public String doCartAdd(@RequestBody Map<String,String> req) {
-		if (goDAO.existsGoods(Integer.parseInt(req.get("userId")), Integer.parseInt(req.get("option")))) {
-		    throw new IllegalStateException("해당 상품이 이미 장바구니에 존재합니다.");
-		}
-//		goodsDTO aGoods = goDAO.addGoods();
-		return "";
+	public String doCartAdd(@RequestBody CartRequest req) {
+	    int userId = req.getUserId();
+	    for (CartRequest.CartItem item : req.getOptions()) {
+	    	int optionId = item.getId();
+	    	if (gcDAO.existsCart(userId, optionId)) {
+	            return "0";
+	        }
+	    }
+	    for (CartRequest.CartItem item : req.getOptions()) {
+	        int optionId = item.getId();
+	        int qty = item.getQty();
+	        GoodsCartDTO dto = new GoodsCartDTO();
+	        dto.setUser_id(userId);
+	        dto.setGoods_option_id(optionId);
+	        dto.setQty(qty);
+	        dto.setAdded_at(LocalDateTime.now());
+	        gcDAO.addCart(dto); // DAO에서 GoodsCartDTO를 받아서 insert
+	    }
+	    return "1";
+	}
+	@PostMapping("/removeCart")
+	public String doRemoveCart(@RequestBody Map<String,String> req) {
+		int id = Integer.parseInt(req.get("id"));
+		gcDAO.removeCart(id);
+		return "1";
+	}
+	@PostMapping("/selRemoveCart")
+	public String doSelRemoveCart(@RequestBody Map<String, List<Integer>> req) {
+	    List<Integer> cartIds = req.get("id");
+	    gcDAO.selRemoveCart(cartIds); // 이렇게 하면 MyBatis가 list로 인식함
+	    return "1";
 	}
 }

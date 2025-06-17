@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"file:///C:/Users/805-01/eclipse-workspace/padd/src/main/resources/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oreum.goods.dao.GoodsCartDAO">
+  <select id="findUserCart" resultType="com.oreum.goods.dto.GoodsCartDTO">
+  	SELECT c.cart_id, c.user_id, c.qty, c.added_at,  o.id AS option_id, o.option_name, o.stock_qty,
+	       g.id AS goods_id, g.name AS goods_name, g.price, g.salePercent, g.img, g.brand, g.status
+	FROM cart c
+	JOIN GoodsOptions o ON c.goods_option_id = o.id JOIN goods g ON o.goods_id = g.id
+	WHERE c.user_id = #{id};
+  </select>
+  <select id="existsCart" resultType="boolean">
+    SELECT EXISTS (SELECT 1 FROM cart WHERE user_id = #{userId} AND goods_option_id = #{goodsOptionId})
+  </select>
+  <insert id="addCart" parameterType="com.oreum.goods.dto.GoodsCartDTO">
+    INSERT INTO cart (user_id, goods_option_id, qty, added_at)
+    VALUES (#{user_id}, #{goods_option_id}, #{qty}, #{added_at})
+  </insert>
+  <delete id="removeCart">
+  	DELETE FROM cart WHERE cart_id= #{id}
+  </delete>
+  <delete id="selRemoveCart" parameterType="list">
+  	DELETE FROM cart WHERE cart_id IN
+  	<foreach item="id" collection="list" open="(" separator="," close=")">
+    	#{id}
+  	</foreach>
+  </delete>
+</mapper>

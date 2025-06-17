@@ -5,12 +5,11 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.oreum.goods.dto.goodsDTO;
+import com.oreum.goods.dto.goodsOptionDTO;
 
 @Mapper
-public interface goodsDAO {
+public interface GoodsOptionDAO {
 
-	List<goodsDTO> findAllGoods();
+	List<goodsOptionDTO> findGoodsOptions(@Param("id") int id);
 
-	List<goodsDTO> findGoods(@Param("id")int id);
 }
