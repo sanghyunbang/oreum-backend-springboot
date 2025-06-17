@@ -21,7 +21,16 @@
         WHERE b.title = #{title}
     </select>
 <select id="getAllCommunities" resultType="com.oreum.community.dto.communityDTO">
-  SELECT * FROM boards;
+  SELECT
+    board_id AS boardId,
+    title,
+    description,
+    creator_id AS creatorId,
+    thumbnail_url AS thumbnailUrl,
+    is_private AS isPrivate,
+    created_at AS createdAt,
+    updated_at AS updatedAt
+  FROM boards
 </select>
 <insert id="insertCommunity" parameterType="com.oreum.community.dto.communityDTO">
     INSERT INTO boards

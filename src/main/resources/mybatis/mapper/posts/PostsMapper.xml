@@ -17,9 +17,17 @@
   <!-- curation_details 테이블에 저장 -->
   <insert id="insertCurationDetail" parameterType="com.oreum.posts.dto.PostsDTO">
     INSERT INTO curation_details (
-      post_id, media_type, media_url
+      post_id, mountain_name, route, caution, nearby_attraction
     ) VALUES (
-      #{postId}, #{mediaType}, #{mediaUrl}
+      #{postId}, #{mountainName}, #{route}, #{caution}, #{nearbyAttraction}
+    );
+  </insert>
+  
+  <insert id="insertMeetingDetail" parameterType="com.oreum.posts.dto.PostsDTO">
+    INSERT INTO meeting_details (
+      post_id, meeting_date, meeting_location
+    ) VALUES (
+      #{postId}, #{meetingDate}, #{meetingLocation}
     );
   </insert>
 
@@ -30,7 +38,15 @@
       #{postId}, #{mediaType}, #{mediaUrl}
     )
   </insert>
+<!-- 전체 게시글 가져오기 -->
+<select id="getAllPosts" resultType="com.oreum.posts.dto.PostsDTO">
+  SELECT * FROM posts ORDER BY created_at DESC
+</select>
 
+<!-- 댓글 수 세기 -->
+<select id="countComments" resultType="int" parameterType="int">
+  SELECT COUNT(*) FROM comments WHERE post_id = #{postId}
+</select>
 
 
   </mapper>

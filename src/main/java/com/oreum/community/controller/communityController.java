@@ -32,11 +32,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class communityController {
 
     private final communityMapper _comm;
-    private final UserDao userMapper;
+    private final UserDao _um;
     
     @GetMapping("/{communityName}")
     public ResponseEntity<communityDTO> getCommunityName(@PathVariable("communityName") String communityName) {
-        System.out.println("커뮤이름 호출 들어오긴함");
+        System.out.println("		커뮤이름 호출 들어오긴함");
         communityDTO dto = _comm.getCommunity(communityName);
         return ResponseEntity.ok(dto);
     }
@@ -53,11 +53,11 @@ public class communityController {
         if (authentication.getPrincipal() instanceof CustomOAuth2User user) {
             // 로그인 사용자 이메일에서 사용자 정보 추출
             String email = user.getUserName();
-            System.out.println("겟 유저네임 : "+email);
-            int creatorId = userMapper.selectUserIdByEmail(email);
-            System.out.println("작성자 id" + creatorId);
-            String nickname = userMapper.userNameByuserId(creatorId);
-            System.out.println("닉네임 : " + nickname);
+            System.out.println("	겟 유저네임 : "+email);
+            int creatorId = _um.selectUserIdByEmail(email);
+            System.out.println("	작성자 id : " + creatorId);
+            String nickname = _um.userNameByuserId(creatorId);
+            System.out.println("	닉네임 : " + nickname);
 
             // dto에 필요한 값 세팅
             dto.setCreatorId(creatorId);
@@ -73,10 +73,9 @@ public class communityController {
         return ResponseEntity.status(400).body("잘못된 사용자 정보입니다.");
     }
 
-    
     @GetMapping("/list")
     public ResponseEntity<List<communityDTO>> getCommunityList() {
-    	System.out.println("커뮤니티 리스트 호출됨");
+    	System.out.println("		커뮤니티 리스트 호출됨");
         List<communityDTO> list = _comm.getAllCommunities();
         return ResponseEntity.ok(list);
     }

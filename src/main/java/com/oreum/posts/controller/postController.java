@@ -33,6 +33,11 @@ public class postController {
     public ResponseEntity<?> insertPost(@RequestPart("post") PostsDTO postDTO,
                                         @RequestPart(value = "media", required = false)
                                         List<MultipartFile> mediaFiles) {
+    	
+    	System.out.println("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ게시글 등록 진입ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+    	System.out.println("	작성자 : " + postDTO.getNickname()
+    						+"\n	보드 id :" + postDTO.getBoardId()
+    						+"\n	제목 : " + postDTO.getTitle());
 
         // DB 저장하기 1 (게시글 공통 테이블)
         pd.insertpost(postDTO);
@@ -40,6 +45,8 @@ public class postController {
         // DB 저장하기 2 (큐레이션 여부 따져서 큐레이션 저장)
         if("curation".equals(postDTO.getType())){
             pd.insertCurationDetail(postDTO);
+        } else if ("meeting".equals(postDTO.getType())) {
+            pd.insertMeetingDetail(postDTO);
         }
         // S3에 업로드 하고 URL 받아서 저장
         if (mediaFiles != null && !mediaFiles.isEmpty()){
@@ -52,6 +59,24 @@ public class postController {
             }
         }        
         return ResponseEntity.ok("게시글 등록 완료");
+    }
+    
+    @GetMapping("/list")
+    public ResponseEntity<?> getAllPosts() {
+    	System.out.println("		게시물 리스트 불러오기");
+        try {
+            List<PostsDTO> posts = pd.getAllPosts();
+
+            for (PostsDTO post : posts) {
+                int count = pd.countComments(post.getPostId());
+                post.setCommentCount(count); // 댓글 수 채워 넣기
+            }
+
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("게시글 목록 불러오기 실패");
+        }
     }
  
 }

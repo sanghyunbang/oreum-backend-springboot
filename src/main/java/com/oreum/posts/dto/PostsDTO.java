@@ -25,6 +25,10 @@ public class PostsDTO {
     private boolean isDeleted;      // 삭제 여부
     private LocalDateTime createdAt;// 작성일
     private LocalDateTime updatedAt;// 수정일
+    
+    								 //[모임관련]
+    private String meetingDate;       // YYYY-MM-DD 형식
+    private String meetingLocation;
 
     private List<String> mediaUrls; // S3 업로드 결과 저장용 필드
 }
