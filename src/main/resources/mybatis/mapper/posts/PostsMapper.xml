@@ -11,7 +11,7 @@
       user_id, board_id, title, content
     ) VALUES (
       #{userId}, #{boardId}, #{title}, #{content}
-    );
+    )
   </insert>
 
   <!-- curation_details 테이블에 저장 -->
@@ -40,13 +40,78 @@
   </insert>
 <!-- 전체 게시글 가져오기 -->
 <select id="getAllPosts" resultType="com.oreum.posts.dto.PostsDTO">
-  SELECT * FROM posts ORDER BY created_at DESC
+  SELECT 
+    p.post_id AS postId,
+    p.user_id,
+    u.nickname,            -- 유저 테이블에서 닉네임 join
+    p.board_id,
+    p.type,
+    p.title,
+    p.content,
+    p.like_count,
+    p.comment_count,
+    p.is_deleted,
+    p.created_at,
+    p.updated_at
+  FROM posts p
+  JOIN users u ON p.user_id = u.user_id
+  ORDER BY p.created_at DESC
 </select>
+
+
 
 <!-- 댓글 수 세기 -->
 <select id="countComments" resultType="int" parameterType="int">
   SELECT COUNT(*) FROM comments WHERE post_id = #{postId}
 </select>
+<select id="getPostById" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE post_id = #{postId}
+</select>
+<select id="getCommentsByPostId" resultType="com.oreum.posts.dto.CommentDTO" parameterType="int">
+  SELECT
+    c.comment_id AS commentId,
+    c.post_id AS postId,
+    c.user_id AS userId,
+    u.nickname AS nickname,
+    c.parent_id AS parentId,
+    c.content,
+    c.like_count AS likeCount,
+    c.created_at AS createdAt,
+    c.updated_at AS updatedAt
+  FROM comments c
+  JOIN users u ON c.user_id = u.user_id
+  WHERE c.post_id = #{postId}
+  ORDER BY c.created_at ASC
+</select>
+<insert id="insertComment" parameterType="com.oreum.posts.dto.CommentDTO" useGeneratedKeys="true" keyProperty="commentId">
+  INSERT INTO comments (
+    post_id,
+    user_id,
+    parent_id,
+    content,
+    like_count,
+    created_at
+  ) VALUES (
+    #{postId},
+    #{userId},
+    #{parentId},
+    #{content},
+    #{likeCount},
+    #{createdAt}
+  )
+</insert>
+
+<insert id="insertPostLike" parameterType="com.oreum.posts.dto.PostLikeDTO">
+  INSERT IGNORE INTO post_likes (post_id, user_id, created_at)
+  VALUES (#{postId}, #{userId}, NOW())
+</insert>
+<delete id="deletePostLike" parameterType="com.oreum.posts.dto.PostLikeDTO">
+  DELETE FROM post_likes
+  WHERE post_id = #{postId} AND user_id = #{userId}
+</delete>
+
 
 
   </mapper>
