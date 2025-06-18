@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.oreum.external.S3.S3Service;
 import com.oreum.posts.dao.PostsDAO;
+import com.oreum.posts.dto.BookmarkDTO;
 import com.oreum.posts.dto.CommentDTO;
 import com.oreum.posts.dto.PostLikeDTO;
 import com.oreum.posts.dto.PostsDTO;
@@ -91,10 +92,11 @@ public class postController {
     
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPostDetail(@PathVariable("postId") String postIdstr) {
-    	System.out.println("		포스트 ID : "+postIdstr);
+    	System.out.println("		포스트 상세보기 진입 ID : "+postIdstr);
         try {
         	int postId = Integer.parseInt(postIdstr);
             PostsDTO post = pd.getPostById(postId);
+            System.out.println(post);
             if (post == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -139,29 +141,86 @@ public class postController {
     @PostMapping("/like")
     public ResponseEntity<?> likePost(@RequestBody PostLikeDTO likeDTO) {
     	System.out.println("			좋아요 요청: postId=" + likeDTO.getPostId() + ", userId=" + likeDTO.getUserId());
-
-        try {
-            pd.insertPostLike(likeDTO);  // DAO 메서드 호출 (중복 체크 포함)
-            return ResponseEntity.ok("좋아요 처리 완료");
+    	
+    	try {
+            PostLikeDTO existingLike = pd.getPostLike(likeDTO.getPostId(), likeDTO.getUserId());
+            System.out.println("getpostlike 리턴받은 값 = "+ existingLike);
+            if (existingLike != null) {
+                // 이미 좋아요 누름 → 좋아요 취소
+                pd.deletePostLike(likeDTO.getPostId(), likeDTO.getUserId());
+                pd.decrementPostLikeCount(likeDTO.getPostId());
+                return ResponseEntity.ok(Map.of("liked", false));
+            } else {
+                // 좋아요 안 누름 → 좋아요 추가
+                likeDTO.setCreatedAt(LocalDateTime.now());
+                pd.insertPostLike(likeDTO);
+                pd.incrementPostLikeCount(likeDTO.getPostId());
+                return ResponseEntity.ok(Map.of("liked", true));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("좋아요 처리 실패");
         }
+        
     }
 
-    @DeleteMapping("/like")
-    public ResponseEntity<?> unlikePost(@RequestBody PostLikeDTO likeDTO) {
-    	System.out.println("			좋아요 취소 요청: postId=" + likeDTO.getPostId() + ", userId=" + likeDTO.getUserId());
+    
+    @PostMapping("/bookmark")
+    public ResponseEntity<?> toggleBookmark(@RequestBody BookmarkDTO bookmarkDTO) {
+    	int userId = bookmarkDTO.getUserId();
+        int postId = bookmarkDTO.getPostId();
+
+        System.out.println("		북마크 토글 요청: postId=" + postId + ", userId=" + userId);
 
         try {
-            pd.deletePostLike(likeDTO);
-            return ResponseEntity.ok("좋아요 취소 완료");
+            BookmarkDTO existingBookmark = pd.getBookmark(postId, userId);
+            System.out.println("                 북마크 데이터 겟 체크 : "+existingBookmark);
+            if (existingBookmark != null) {
+                // 북마크 존재 → 삭제
+                pd.deleteBookmark(postId, userId);
+                return ResponseEntity.ok(Map.of("bookmarked", false));
+            } else {
+                // 북마크 없음 → 추가
+                bookmarkDTO.setCreatedAt(LocalDateTime.now());
+                pd.insertBookmark(bookmarkDTO);
+                return ResponseEntity.ok(Map.of("bookmarked", true));
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("좋아요 취소 실패");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("북마크 처리 실패");
         }
     }
 
+    @GetMapping("/bookmarks/{userId}")
+    public ResponseEntity<?> getUserBookmarks(@PathVariable("userId") int userId) {
+    	
+    	System.out.println("	북마크 목록 요청: userId=" + userId);
+        try {
+            List<Integer> bookmarkedPostIds = pd.getBookmarkedPostIdsByUser(userId);
+            return ResponseEntity.ok(bookmarkedPostIds);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("북마크 조회 실패");
+        }
+    }
+
+    @GetMapping("/{postId}/bookmarked")
+    public ResponseEntity<?> isPostBookmarked(
+            @PathVariable("postId") int postId,
+            @RequestParam("userId") int userId) {
+
+        System.out.println("		북마크 여부 확인 요청: postId=" + postId + ", userId=" + userId);
+        
+        try {
+            BookmarkDTO bookmark = pd.getBookmark(postId, userId);
+            boolean bookmarked = (bookmark != null);
+            return ResponseEntity.ok(Map.of("bookmarked", bookmarked));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("북마크 여부 확인 실패");
+        }
+    }
 
 
  

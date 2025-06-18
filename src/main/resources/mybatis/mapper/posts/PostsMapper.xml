@@ -42,17 +42,17 @@
 <select id="getAllPosts" resultType="com.oreum.posts.dto.PostsDTO">
   SELECT 
     p.post_id AS postId,
-    p.user_id,
+    p.user_id AS userId,
     u.nickname,            -- 유저 테이블에서 닉네임 join
-    p.board_id,
+    p.board_id AS boardId,
     p.type,
     p.title,
     p.content,
-    p.like_count,
-    p.comment_count,
+    p.like_count AS likeCount,
+    p.comment_count AS commentCount,
     p.is_deleted,
-    p.created_at,
-    p.updated_at
+    p.created_at AS createdAt,
+    p.updated_at AS updatedAt
   FROM posts p
   JOIN users u ON p.user_id = u.user_id
   ORDER BY p.created_at DESC
@@ -65,9 +65,22 @@
   SELECT COUNT(*) FROM comments WHERE post_id = #{postId}
 </select>
 <select id="getPostById" resultType="com.oreum.posts.dto.PostsDTO">
-    SELECT *
-    FROM posts
-    WHERE post_id = #{postId}
+    SELECT 
+    p.post_id AS postId,
+    p.user_id AS userId,
+    u.nickname AS nickname,
+    p.board_id AS boardId,
+    p.type,
+    p.title,
+    p.content,
+    p.like_count AS likeCount,
+    p.comment_count AS commentCount,
+    p.is_deleted AS isDeleted,
+    p.created_at AS createdAt,
+    p.updated_at AS updatedAt
+  FROM posts p
+  JOIN users u ON p.user_id = u.user_id
+  WHERE p.post_id = #{postId}
 </select>
 <select id="getCommentsByPostId" resultType="com.oreum.posts.dto.CommentDTO" parameterType="int">
   SELECT
@@ -103,14 +116,58 @@
   )
 </insert>
 
+<!-- 좋아요 여부 조회 -->
+<select id="getPostLike" resultType="com.oreum.posts.dto.PostLikeDTO">
+  SELECT
+    like_id AS likeId,
+    post_id AS postId,
+    user_id AS userId,
+    created_at AS createdAt
+  FROM post_likes
+  WHERE post_id = #{postId} AND user_id = #{userId}
+</select>
+<!-- 좋아요 등록 -->
 <insert id="insertPostLike" parameterType="com.oreum.posts.dto.PostLikeDTO">
-  INSERT IGNORE INTO post_likes (post_id, user_id, created_at)
+  INSERT INTO post_likes (post_id, user_id, created_at)
   VALUES (#{postId}, #{userId}, NOW())
 </insert>
-<delete id="deletePostLike" parameterType="com.oreum.posts.dto.PostLikeDTO">
-  DELETE FROM post_likes
-  WHERE post_id = #{postId} AND user_id = #{userId}
+<!-- 좋아요 취소 -->
+<delete id="deletePostLike">
+  DELETE FROM post_likes WHERE post_id = #{postId} AND user_id = #{userId}
 </delete>
+<!-- 게시글 좋아요 수 증가 -->
+<update id="incrementPostLikeCount">
+  UPDATE posts SET like_count = like_count + 1 WHERE post_id = #{postId}
+</update>
+<!-- 게시글 좋아요 수 감소 -->
+<update id="decrementPostLikeCount">
+  UPDATE posts SET like_count = like_count - 1 WHERE post_id = #{postId}
+</update>
+
+<!-- 북마크 여부 확인 -->
+<select id="getBookmark" resultType="com.oreum.posts.dto.BookmarkDTO">
+  SELECT 
+    bookmark_id AS bookmarkId,
+    user_id AS userId,
+    post_id AS postId,
+    created_at AS createdAt
+  FROM bookmarks
+  WHERE post_id = #{postId} AND user_id = #{userId}
+</select>
+<!-- 북마크 추가 -->
+<insert id="insertBookmark" parameterType="com.oreum.posts.dto.BookmarkDTO">
+  INSERT INTO bookmarks (user_id, post_id, created_at)
+  VALUES (#{userId}, #{postId}, NOW())
+</insert>
+<!-- 북마크 삭제 -->
+<delete id="deleteBookmark">
+  DELETE FROM bookmarks WHERE post_id = #{postId} AND user_id = #{userId}
+</delete>
+<!-- 유저가 북마크한 postId 리스트 반환 -->
+<select id="getBookmarkedPostIdsByUser" resultType="int">
+  SELECT post_id FROM bookmarks WHERE user_id = #{userId}
+</select>
+
 
 
 
