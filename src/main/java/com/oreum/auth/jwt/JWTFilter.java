@@ -28,7 +28,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String token = null;
 
-        //1. Authorization 헤더에서 코튼 찾기
+        //1. Authorization 헤더에서 토큰 찾기
         String authHeader = request.getHeader("Authorization");
         if(authHeader != null && authHeader.startsWith("Bearer ")){
             token = authHeader.substring(7); // "Bearer " 제거하기

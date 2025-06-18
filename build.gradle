@@ -26,10 +26,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
-	// ✅ RestTemplate + Apache HttpClient4 (호환성용)
+	// RestTemplate + Apache HttpClient4 (호환성용)
 	implementation 'org.apache.httpcomponents:httpclient:4.5.13'
 
-	// ✅ WebClient 필요 시 (추가로)
+	// WebClient 필요 시 (추가로)
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	// MyBatis

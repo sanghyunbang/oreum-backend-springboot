@@ -35,17 +35,27 @@ public class WeatherController {
                 .map(MountainDTO::getName)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 mountainNum: " + mountainNum));
 
-        // 시간 조건에 따라 baseTime/baseDate 결정
-        LocalTime now = LocalTime.now();
-        String baseTime = now.isBefore(LocalTime.of(8, 30)) ? "1700" : "0800";
-        LocalDate baseDate = baseTime.equals("1700") ? LocalDate.now().minusDays(1) : LocalDate.now();
-        String baseDateStr = baseDate.format(DATE_FORMATTER);
+        
+        // Redis 키 형식
+        String redisKey = "weather:" + mountainNum;        
+        try {
+            // redis에서 데이터 조회
+            String json = weatherService.getFromRedis(redisKey);
+            if (json == null) {
+                return Map.of("error","해당 산의 예보 데이터가 Redis에 존재하지 않습니다. 관리자에게 문의하세요.");
+            }
 
-        System.out.printf("[요청] %s (%s %s)%n", mountainName, baseDateStr, baseTime);
+            // JSON -> List<WeatherDTO>
+            List<WeatherDTO> weatherList = weatherService.deserializeWeatherList(json);
 
-        // 실시간 호출 및 가공된 결과 반환
-        return weatherService.getFormattedForecast(mountainNum);
-
+            // 필요한 가공 로직 적용
+            Map<String, Object> formatted = weatherService.formatForecast(weatherList);
+            System.out.printf("[Redis 사용] %s (%s)%n", mountainName, redisKey);
+            return formatted;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Map.of("error", "Redis 또는 데이터 처리 중 오류 발생: " + e.getMessage());            
+        }
     }
 
     /**

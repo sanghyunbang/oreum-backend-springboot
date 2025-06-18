@@ -8,7 +8,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class ExternalApiConfig {
 
     @Bean
-    public WebClient.Builder webClientBuilder() {
-        return WebClient.builder();
+    public WebClient webClient() {
+        return WebClient.builder()
+                .baseUrl("https://apihub.kma.go.kr")
+                .build();
     }
 }

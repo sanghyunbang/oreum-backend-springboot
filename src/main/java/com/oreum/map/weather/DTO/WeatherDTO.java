@@ -19,4 +19,5 @@ public class WeatherDTO {
     private String lon;
     private String alt;
     private String stn_nm; // 산 이름 (mountainNum 대신 사용)
+
 }
