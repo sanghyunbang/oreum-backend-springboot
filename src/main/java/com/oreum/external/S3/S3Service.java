@@ -3,7 +3,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,10 @@ public class S3Service {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+
+    // CDN 도메인 
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudFrontDomain;
     
     // 이전 Config에서 만든 Bean이 들어감!! (RequiredArgsConstructor가 해줌)
     private final AmazonS3 amazonS3; 
@@ -31,18 +37,22 @@ public class S3Service {
             //S3에 파일정보 같이 보냄(아마존 관련 라이브러리 씀)
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(file.getSize());
-            amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
-            amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
-            // bucket: 어디에 업로드할지 (폴더 아님, S3의 저장 공간)
-            // fileName: S3에 저장될 파일 이름 (중복 방지됨)
-            // file.getInputStream(): 실제 파일의 바이트 스트림
-            // metadata: 파일의 추가 정보 (크기, 타입 등)
+
+            metadata.setContentType(file.getContentType()); // 파일의 MIME 타입을 s3에 알려줌
+
+            PutObjectRequest putRequest = new com.amazonaws.services.s3.model.PutObjectRequest(
+                bucket, fileName, file.getInputStream(), metadata
+            ).withCannedAcl(CannedAccessControlList.PublicRead);
+
+            amazonS3.putObject(putRequest);
 
         } catch (IOException e) {
             throw new RuntimeException("S3 업로드 실패", e);
         }
 
-        // 업로드가 성공했으면, 그 파일의 S3 URL을 반환
-        return amazonS3.getUrl(bucket, fileName).toString();
+        // 업로드가 성공했으면, 그 파일의 S3 URL을 반환 -> (수정) CloudFront URL 반환
+        // return amazonS3.getUrl(bucket, fileName).toString();
+        
+        return cloudFrontDomain + "/" + fileName;
     }
 }
