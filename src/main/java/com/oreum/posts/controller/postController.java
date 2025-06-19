@@ -76,11 +76,16 @@ public class postController {
             List<PostsDTO> posts = pd.getAllPosts();
             
             for (PostsDTO post : posts) {
-                int count = pd.countComments(post.getPostId());
+                int postId = post.getPostId();
+
+                int count = pd.countComments(postId);
                 post.setCommentCount(count); // 댓글 수 채워 넣기
                 
-                List<CommentDTO> comments = pd.getCommentsByPostId(post.getPostId());
+                List<CommentDTO> comments = pd.getCommentsByPostId(postId);
                 post.setComments(comments);
+
+                //미디어 관련
+                post.setMediaList(pd.getPostMedia(postId));
             }
 
             return ResponseEntity.ok(posts);
@@ -107,6 +112,9 @@ public class postController {
             
             List<CommentDTO> comments = pd.getCommentsByPostId(postId);
             post.setComments(comments);
+
+            //미디어 추가
+            post.setMediaList(pd.getPostMedia(postId));
             
             return ResponseEntity.ok(post);
         } catch (Exception e) {

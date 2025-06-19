@@ -40,7 +40,7 @@ public class WeatherScheduler {
     /**
      * 서버 시작 시 테스트용으로 1개 산만 업데이트
      */
-    @PostConstruct // 처음 시작하면 그때 바로 실행
+    // @PostConstruct // 처음 시작하면 그때 바로 실행
     public void runOnceAtStartup() {
         System.out.println("[실행] 서버 부팅 시 전체 산 날씨 초기 업데이트 실행");
         scheduledFullUpdate();

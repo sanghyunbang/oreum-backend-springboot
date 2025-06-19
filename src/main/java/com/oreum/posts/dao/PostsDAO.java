@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.oreum.posts.dto.BookmarkDTO;
 import com.oreum.posts.dto.CommentDTO;
+import com.oreum.posts.dto.MediaDTO;
 import com.oreum.posts.dto.PostLikeDTO;
 import com.oreum.posts.dto.PostsDTO;
 
@@ -23,6 +24,8 @@ public interface PostsDAO {
 	void insertPostMedia(@Param("postId") int postID,
 						 @Param("mediaType") String mediaType,
 						 @Param("mediaUrl") String mediaUrl);
+
+	List<MediaDTO> getPostMedia(@Param("postId") int postId);					 
 	List<PostsDTO> getAllPosts();
 	int countComments(@Param("postId") int postId);
 	

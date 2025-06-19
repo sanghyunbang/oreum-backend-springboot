@@ -30,7 +30,7 @@ public class PostsDTO {
     private String meetingDate;       // YYYY-MM-DD 형식
     private String meetingLocation;
 
-    private List<String> mediaUrls; // S3 업로드 결과 저장용 필드
+    private List<MediaDTO> mediaList; // S3 업로드 결과 저장용 필드
     private List<CommentDTO> comments;
 
 }

@@ -42,7 +42,7 @@ public class S3Service {
 
             PutObjectRequest putRequest = new com.amazonaws.services.s3.model.PutObjectRequest(
                 bucket, fileName, file.getInputStream(), metadata
-            ).withCannedAcl(CannedAccessControlList.PublicRead);
+            );
 
             amazonS3.putObject(putRequest);
 
