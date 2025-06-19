@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"file:///C:/Users/805-01/eclipse-workspace/padd/src/main/resources/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oreum.goods.dao.GoodsLikeDAO">
+  <insert id="insertLike">
+    INSERT INTO likes (user_id, goods_id)
+    VALUES (#{userId}, #{goodsId})
+  </insert>
+
+  <delete id="deleteLike">
+    DELETE FROM likes
+    WHERE user_id = #{userId} AND goods_id = #{goodsId}
+  </delete>
+
+  <select id="existsLike" resultType="boolean">
+    SELECT COUNT(*) > 0
+    FROM likes
+    WHERE user_id = #{userId} AND goods_id = #{goodsId}
+  </select>
+</mapper>

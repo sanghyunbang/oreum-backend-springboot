@@ -9,4 +9,9 @@ public class OrderItemDTO {
     private int goods_options_id;    // 상품 옵션 ID (Foreign Key)
     private int qty;                 // 수량
     private int item_price;          // 개별 또는 총 가격
+    
+    private String goods_name;
+    private String brand;
+    private String img;
+    private String option_name;
 }

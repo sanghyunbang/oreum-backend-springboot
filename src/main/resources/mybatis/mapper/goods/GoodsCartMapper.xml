@@ -10,8 +10,8 @@
 	JOIN GoodsOptions o ON c.goods_option_id = o.id JOIN goods g ON o.goods_id = g.id
 	WHERE c.user_id = #{id};
   </select>
-  <select id="existsCart" resultType="boolean">
-    SELECT EXISTS (SELECT 1 FROM cart WHERE user_id = #{userId} AND goods_option_id = #{goodsOptionId})
+  <select id="existsCart" resultType="int">
+	SELECT 1 FROM cart WHERE user_id = #{userId} AND goods_option_id = #{goodsOptionId} LIMIT 1
   </select>
   <insert id="addCart" parameterType="com.oreum.goods.dto.GoodsCartDTO">
     INSERT INTO cart (user_id, goods_option_id, qty, added_at)

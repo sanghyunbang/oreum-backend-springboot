@@ -1,11 +1,14 @@
 package com.oreum.goods.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.oreum.goods.dao.GoodsCartDAO;
+import com.oreum.goods.dao.GoodsLikeDAO;
 import com.oreum.goods.dao.GoodsOptionDAO;
 import com.oreum.goods.dao.GoodsOrderDAO;
 import com.oreum.goods.dao.goodsDAO;
@@ -29,12 +33,14 @@ import com.oreum.goods.dto.goodsOptionDTO;
 @RestController
 @RequestMapping("/api/goods")
 @CrossOrigin(origins="http://localhost:3000",allowCredentials = "true")
+@EnableScheduling
 public class GoodsController {
 	
 	@Autowired goodsDAO gDAO;
 	@Autowired GoodsOptionDAO goptDAO;
 	@Autowired GoodsCartDAO gcDAO;
 	@Autowired GoodsOrderDAO goDAO;
+	@Autowired GoodsLikeDAO likeDAO;
 	
 	//굿즈
 	@GetMapping("/listAll")
@@ -53,6 +59,7 @@ public class GoodsController {
 		return fgoodsOpt;
 	}
 	
+	
 	//장바구니
 	@PostMapping("/cartList")
 	public List<GoodsCartDTO> doCartList(@RequestBody Map<String,String> req){
@@ -63,23 +70,34 @@ public class GoodsController {
 	@PostMapping("/cartAdd")
 	public String doCartAdd(@RequestBody CartRequest req) {
 	    int userId = req.getUserId();
-	    for (CartRequest.CartItem item : req.getOptions()) {
-	    	int optionId = item.getId();
-	    	if (gcDAO.existsCart(userId, optionId)) {
-	            return "0";
-	        }
-	    }
+	    List<Integer> duplicated = new ArrayList<>();
+	    List<GoodsCartDTO> newItems = new ArrayList<>();
+
 	    for (CartRequest.CartItem item : req.getOptions()) {
 	        int optionId = item.getId();
-	        int qty = item.getQty();
-	        GoodsCartDTO dto = new GoodsCartDTO();
-	        dto.setUser_id(userId);
-	        dto.setGoods_option_id(optionId);
-	        dto.setQty(qty);
-	        dto.setAdded_at(LocalDateTime.now());
-	        gcDAO.addCart(dto); // DAO에서 GoodsCartDTO를 받아서 insert
+	        Integer exCart = gcDAO.existsCart(userId, optionId);
+	        if (exCart != null) {
+	            duplicated.add(optionId); // 이미 존재하는 항목
+	        } else {
+	            GoodsCartDTO dto = new GoodsCartDTO();
+	            dto.setUser_id(userId);
+	            dto.setGoods_option_id(optionId);
+	            dto.setQty(item.getQty());
+	            dto.setAdded_at(LocalDateTime.now());
+	            newItems.add(dto);
+	        }
 	    }
-	    return "1";
+	    // 새로운 상품만 insert
+	    for (GoodsCartDTO dto : newItems) {
+	        gcDAO.addCart(dto);
+	    }
+	    if (!newItems.isEmpty()) {
+	        System.out.println("1");
+	        return "1"; // 새로 추가된 항목이 있음
+	    } else {
+	        System.out.println("0");
+	        return "0"; // 모두 기존에 존재하던 항목
+	    }
 	}
 	@PostMapping("/removeCart")
 	public String doRemoveCart(@RequestBody Map<String,String> req) {
@@ -90,23 +108,15 @@ public class GoodsController {
 	@PostMapping("/selRemoveCart")
 	public String doSelRemoveCart(@RequestBody Map<String, List<Integer>> req) {
 	    List<Integer> cartIds = req.get("id");
+	    System.out.println("cartIds: "+cartIds);
 	    gcDAO.selRemoveCart(cartIds); // 이렇게 하면 MyBatis가 list로 인식함
 	    return "1";
 	}
 	
+	
 	//주문
-	@PostMapping("/deliveryList")
-	public List<GoodsOrderDTO> doOrderList(@RequestBody Map<String,String> req){
-		int userid = Integer.parseInt("id");
-		List<GoodsOrderDTO> deliveryList = goDAO.findDeliveryList(userid);
-		return deliveryList;
-	}
 	@PostMapping("/addOrder")
 	public ResponseEntity<Integer> addOrder(@RequestBody GoodsOrderDTO order) {
-	    System.out.println("addOrder");
-
-	    // 디버깅 생략...
-
 	    GoodsOrderDTO odto = new GoodsOrderDTO();
 	    odto.setUserId(order.getUserId());
 	    odto.setAddressbasic(order.getAddressbasic());
@@ -120,8 +130,6 @@ public class GoodsController {
 
 	    goDAO.addOrder(odto);
 
-	    System.out.println("생성된 orderId: " + odto.getOrder_id());
-
 	    return ResponseEntity.ok(odto.getOrder_id());  // ✅ order_id 반환
 	}
 	@PostMapping("addOrderItem")
@@ -129,4 +137,49 @@ public class GoodsController {
 	    List<OrderItemDTO> items = req.get("items");
 	    goDAO.addItemOrder(items); // ✅ 바로 리스트 전달
 	}
+	@PostMapping("/deliveryList")
+	public List<GoodsOrderDTO> doOrderList(@RequestBody Map<String,String> req){
+		int userId = Integer.parseInt(req.get("userId"));
+		List<GoodsOrderDTO> deliveryList = goDAO.findDeliveryList(userId);
+		return deliveryList;
+	}
+	
+	@Scheduled(fixedRate = 60000) // 1분마다 실행
+    public void updateOrderStatusByTime() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. 결제완료 → 10분 후 배송중
+        goDAO.updateToShipping(now.minusMinutes(1));
+
+        // 2. 배송중 → 20분 후 배송완료
+        goDAO.updateToDelivered(now.minusMinutes(1));
+    }
+	
+	
+	//좋아요
+	@PostMapping("/liked")
+    public ResponseEntity<?> like(@RequestBody Map<String, Integer> req) {
+        int userId = req.get("userId");
+        System.out.println(userId);
+        int goodsId = req.get("goodsId");
+        System.out.println(goodsId);
+
+        boolean liked = likeDAO.existsLike(userId, goodsId);
+        if (liked) {
+        	System.out.println("취소");
+            likeDAO.deleteLike(userId, goodsId);
+            gcDAO.decreaseLikes(userId, goodsId);
+            return ResponseEntity.ok("unliked");
+        } else {
+        	System.out.println("추가");
+            likeDAO.insertLike(userId, goodsId);
+            gcDAO.increaseLikes(userId, goodsId);
+            return ResponseEntity.ok("liked");
+        }
+    }
+
+    @PostMapping("/like/check")
+    public boolean checkLike(@RequestBody Map<String, Integer> req) {
+        return likeDAO.existsLike(req.get("userId"), req.get("goodsId"));
+    }
 }

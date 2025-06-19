@@ -9,4 +9,11 @@
   <select id="findGoods" resultType="com.oreum.goods.dto.goodsDTO">
   	SELECT * FROM goods WHERE id=#{id}
   </select>
+  <update id="increaseLikes">
+    UPDATE goods SET likes = likes + 1 WHERE id = #{goodsId}
+  </update>
+
+  <update id="decreaseLikes">
+    UPDATE goods SET likes = likes - 1 WHERE id = #{goodsId} AND likes > 0
+  </update>
 </mapper>

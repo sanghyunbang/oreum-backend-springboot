@@ -1,5 +1,6 @@
 package com.oreum.goods.dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import lombok.Data;
@@ -17,6 +18,8 @@ public class GoodsOrderDTO {
 	    private String request;
 	    private int point;
 	    private int total;
+	    private String status;
+	    private LocalDateTime ordered_at;
 
 	    // 주문 상품들
 	    private List<OrderItemDTO> items;

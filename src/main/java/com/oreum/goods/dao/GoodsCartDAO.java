@@ -12,12 +12,16 @@ public interface GoodsCartDAO {
 	
 	List<GoodsCartDTO> findUserCart(@Param("id") int id);
 	
-	boolean existsCart(@Param("userId") int int1, @Param("goodsOptionId") int int2);
+	Integer existsCart(@Param("userId") int int1, @Param("goodsOptionId") int int2);
 
 	void addCart(GoodsCartDTO dto);
 
 	void removeCart(@Param("id") int id);
 
 	void selRemoveCart(List<Integer> cartIds);
+
+	void decreaseLikes(int userId, int goodsId);
+
+	void increaseLikes(int userId, int goodsId);
 	
 }
