@@ -110,7 +110,6 @@ public class UserController {
         // TODO: BCryptPasswordEncoder 같은 걸로 해시 처리 필수
         userDto.setPasswordHash(userDto.getPasswordHash()); // 실제 해싱 로직 넣기
 
-        // 기본 필드 세팅 (예: role, status, 생성일 등)
         userDto.setRole("user");
         userDto.setStatus("active");
         userDto.setPoints(0);
@@ -121,6 +120,5 @@ public class UserController {
 
         return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
     }
-
     
 }
