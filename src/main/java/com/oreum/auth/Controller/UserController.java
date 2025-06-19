@@ -1,8 +1,12 @@
 package com.oreum.auth.Controller;
 
 import com.oreum.auth.dto.CustomOAuth2User;
+import com.oreum.auth.dto.UserRecordDTO;
 import com.oreum.auth.mapper.UserDao;
+
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,7 +80,47 @@ public class UserController {
         ));
     }
     
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+    	System.out.println("                             로그아웃 진입");
+        
+    	for (String name : new String[]{"accessToken", "refreshToken"}) {
+            Cookie cookie = new Cookie(name, null);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+            cookie.setSecure(false);
+            response.addCookie(cookie);
+        }
+        return ResponseEntity.ok().body("logout completed");
+    }
     
-    
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody UserRecordDTO userDto) {
+    	System.out.println("                회원가입 요청 : "+userDto.getName()
+    					   +"                  email : " + userDto.getEmail());
+        // 이메일 중복 체크
+        if (userMapper.findByEmail(userDto.getEmail()) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message", "이미 존재하는 이메일입니다."));
+        }
+
+        // 비밀번호 해싱 (실제 서비스에서는 BCrypt 등으로 해싱 필요)
+        // 임시로 원본 비밀번호를 passwordHash 필드에 넣는다고 가정
+        // TODO: BCryptPasswordEncoder 같은 걸로 해시 처리 필수
+        userDto.setPasswordHash(userDto.getPasswordHash()); // 실제 해싱 로직 넣기
+
+        // 기본 필드 세팅 (예: role, status, 생성일 등)
+        userDto.setRole("user");
+        userDto.setStatus("active");
+        userDto.setPoints(0);
+        userDto.setCreatedAt(java.time.LocalDateTime.now());
+        userDto.setLastLogin(null);
+
+        userMapper.insertUser(userDto);
+
+        return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
+    }
+
     
 }
