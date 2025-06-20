@@ -2,6 +2,7 @@ package com.oreum.auth.Controller;
 
 import com.oreum.auth.dto.CustomOAuth2User;
 import com.oreum.auth.dto.UserRecordDTO;
+import com.oreum.auth.jwt.JWTUtil;
 import com.oreum.auth.mapper.UserDao;
 
 import jakarta.servlet.http.Cookie;
@@ -23,7 +24,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserDao userMapper;
-
+    private final JWTUtil jwtUtil;
     /**
      *  로그인 복원 시 호출되는 기본 유저 정보
      * - 프론트에서 /api/user 호출 시 로그인 여부 판단 가능
@@ -119,6 +120,42 @@ public class UserController {
         userMapper.insertUser(userDto);
 
         return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
+    }
+    
+    @PostMapping("/login")
+    public ResponseEntity<?> userlogin(@RequestBody Map<String, String> loginData, HttpServletResponse response){
+    	String email = loginData.get("email");
+        String password = loginData.get("password");
+        System.out.println("                       로그인 진입");
+    	System.out.println("                       일반 로그인 요청: " + email);
+    	
+    	UserRecordDTO user = userMapper.findByEmail(email);
+    	if (user == null || !password.equals(user.getPasswordHash())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", "이메일 또는 비밀번호가 잘못되었습니다."));
+        }
+    	String token = jwtUtil.createJwt(
+    	        user.getEmail(),
+    	        user.getNickname(),
+    	        user.getRole(),
+    	        1000L * 60 * 60 * 2 // 2시간 (밀리초)
+    	    );
+
+    	    // ✅ accessToken 쿠키 생성
+    	    Cookie cookie = new Cookie("accessToken", token);
+    	    cookie.setHttpOnly(true); // JS로 접근 못하게
+    	    cookie.setSecure(false); // HTTPS일 경우 true
+    	    cookie.setPath("/");
+    	    cookie.setMaxAge(60 * 60 * 2); // 2시간
+
+    	    response.addCookie(cookie);
+    	
+    	return ResponseEntity.ok(Map.of(
+    	        "userId", user.getUserId(),
+    	        "email", user.getEmail(),
+    	        "nickname", user.getNickname()
+    	    ));
+    	
     }
     
 }
