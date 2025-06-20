@@ -261,10 +261,15 @@ public class AppUserController {
 
             return ResponseEntity.ok(Map.of("message", "프로필 이미지가 성공적으로 업데이트되었습니다.", "profileImageUrl", imageUrl));
 
-        } catch (IOException e) { // IOException 캐치 블록: S3Service의 uploadFile이 IOException을 던질 경우에 대비
-            System.err.println("파일 업로드 중 I/O 오류 발생: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "파일 업로드 중 I/O 오류가 발생했습니다.", "error", e.getMessage()));
-        } catch (Exception e) { // 그 외 모든 예외를 캐치
+        } 
+        
+        // [여기 오류나서 일단 막음]
+        // catch (IOException e) { // IOException 캐치 블록: S3Service의 uploadFile이 IOException을 던질 경우에 대비
+        //     System.err.println("파일 업로드 중 I/O 오류 발생: " + e.getMessage());
+        //     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "파일 업로드 중 I/O 오류가 발생했습니다.", "error", e.getMessage()));
+        // } 
+        
+        catch (Exception e) { // 그 외 모든 예외를 캐치
             System.err.println("프로필 이미지 처리 중 예상치 못한 오류: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "프로필 이미지 처리 중 오류가 발생했습니다.", "error", e.getMessage()));
         }
