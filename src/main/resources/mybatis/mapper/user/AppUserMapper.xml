@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oreum.auth.mapper.AppUserDao">
+
+    <!-- 이메일로 사용자 조회 -->
+    <select id="findByEmail" parameterType="string" resultType="com.oreum.auth.dto.AppUserRecordDTO">
+        SELECT user_id, email, password_hash, name, nickname, profile_image, address, points, role, status, last_login, created_at
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <!-- 사용자 삽입 -->
+    <insert id="insertUser" parameterType="com.oreum.auth.dto.AppUserRecordDTO" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (
+            email,
+            password_hash,
+            name,         
+            nickname,
+            address,
+            points,
+            role,
+            status,
+            created_at
+        ) VALUES (
+            #{email},
+            #{passwordHash},
+            #{name},       
+            #{nickname},
+            #{address},
+            #{points},
+            #{role},
+            #{status},
+            #{createdAt}
+        )
+    </insert>
+
+    <!-- 로그인 시 마지막 접속시간 업데이트 -->
+    <update id="updateLoginInfo" parameterType="com.oreum.auth.dto.AppUserRecordDTO">
+        UPDATE users
+        SET
+            last_login = #{lastLogin}
+        WHERE email = #{email}
+    </update>
+    
+    <!-- 이메일로 사용자 ID 조회 -->
+    <select id="selectUserIdByEmail" parameterType="string" resultType="Integer">
+        SELECT user_id
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <!-- 사용자 ID로 닉네임 가져오기 -->
+    <select id="userNameByuserId" parameterType="Integer" resultType="string">
+        SELECT nickname
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 사용자 정보 업데이트 -->
+    <update id="updateUser" parameterType="com.oreum.auth.dto.AppUserRecordDTO">
+        UPDATE users
+        SET
+            email = #{email},
+            password_hash = #{passwordHash},
+            name = #{name},
+            nickname = #{nickname},
+            profile_image = #{profileImage},
+            address = #{address}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 사용자 삭제 (회원 탈퇴) -->
+    <delete id="deleteUser" parameterType="Integer">
+        DELETE FROM users
+        WHERE user_id = #{userId}
+    </delete>
+
+    <!-- 사용자 ID로 프로필 이미지 URL 조회 -->
+    <select id="selectProfileImageByUserId" parameterType="Integer" resultType="string">
+        SELECT profile_image
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

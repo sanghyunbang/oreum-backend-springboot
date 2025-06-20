@@ -21,10 +21,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class mountainController {
 
     private final MountainService mountainService;
-
+    
+    @GetMapping("/all")
+    public List<MountainDTO> getAllMountains() {
+        System.out.println("모든 산 목록 조회 실행");
+        return mountainService.getAll();
+    }
+    
     @GetMapping("/search")
     public List<MountainDTO> search(@RequestParam("query") String query) {
         System.out.println("검색 실행");
         return mountainService.searchByName(query);
+        
+        
     }
 }
