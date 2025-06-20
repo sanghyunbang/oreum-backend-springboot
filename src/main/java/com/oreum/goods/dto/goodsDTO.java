@@ -12,6 +12,7 @@ public class goodsDTO {
     private String brand;
     private int price;
     private int salePercent;
+    private int likes;
     private String description;
     private String img;
     private String status;

@@ -112,6 +112,13 @@ public class GoodsController {
 	    gcDAO.selRemoveCart(cartIds); // 이렇게 하면 MyBatis가 list로 인식함
 	    return "1";
 	}
+	@PostMapping("/deleteCart")
+	public String doDeleteCart(@RequestBody Map<String, List<Integer>> req) {
+		List<Integer> cartIds = req.get("id");
+		System.out.println("cartIds: "+cartIds);
+		gcDAO.selDeleteCart(cartIds);
+		return "1";
+	}
 	
 	
 	//주문
@@ -160,20 +167,16 @@ public class GoodsController {
 	@PostMapping("/liked")
     public ResponseEntity<?> like(@RequestBody Map<String, Integer> req) {
         int userId = req.get("userId");
-        System.out.println(userId);
         int goodsId = req.get("goodsId");
-        System.out.println(goodsId);
 
         boolean liked = likeDAO.existsLike(userId, goodsId);
         if (liked) {
-        	System.out.println("취소");
             likeDAO.deleteLike(userId, goodsId);
-            gcDAO.decreaseLikes(userId, goodsId);
+            gDAO.decreaseLikes(userId, goodsId);
             return ResponseEntity.ok("unliked");
         } else {
-        	System.out.println("추가");
             likeDAO.insertLike(userId, goodsId);
-            gcDAO.increaseLikes(userId, goodsId);
+            gDAO.increaseLikes(userId, goodsId);
             return ResponseEntity.ok("liked");
         }
     }

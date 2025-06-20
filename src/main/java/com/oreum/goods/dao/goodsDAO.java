@@ -13,4 +13,8 @@ public interface goodsDAO {
 	List<goodsDTO> findAllGoods();
 
 	List<goodsDTO> findGoods(@Param("id")int id);
+
+	void decreaseLikes(@Param("userId") int userId, @Param("goodsId") int goodsId);
+
+	void increaseLikes(@Param("userId") int userId, @Param("goodsId") int goodsId);
 }

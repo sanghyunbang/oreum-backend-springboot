@@ -20,8 +20,6 @@ public interface GoodsCartDAO {
 
 	void selRemoveCart(List<Integer> cartIds);
 
-	void decreaseLikes(int userId, int goodsId);
-
-	void increaseLikes(int userId, int goodsId);
+	void selDeleteCart(List<Integer> cartIds);
 	
 }
