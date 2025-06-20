@@ -153,7 +153,7 @@ public class UserController {
     	return ResponseEntity.ok(Map.of(
     	        "userId", user.getUserId(),
     	        "email", user.getEmail(),
-    	        "nickname", user.getName()
+    	        "nickname", user.getNickname()
     	    ));
     	
     }
