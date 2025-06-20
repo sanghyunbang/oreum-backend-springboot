@@ -121,4 +121,9 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "회원가입 성공"));
     }
     
+    @PostMapping("/login")
+    public ResponseEntity<?> userlogin(){
+    	System.out.println("                       로그인 진입");
+    }
+    
 }
