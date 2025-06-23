@@ -8,7 +8,7 @@ import lombok.Data;
 public class GoodsCartDTO {
     private int cart_id;
     private int user_id;
-    private int goods_option_id; // 필요시 유지
+    private int goods_option_id;
     private int qty;
     private LocalDateTime added_at;
 

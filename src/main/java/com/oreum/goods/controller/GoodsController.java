@@ -21,11 +21,13 @@ import com.oreum.goods.dao.GoodsCartDAO;
 import com.oreum.goods.dao.GoodsLikeDAO;
 import com.oreum.goods.dao.GoodsOptionDAO;
 import com.oreum.goods.dao.GoodsOrderDAO;
+import com.oreum.goods.dao.ReviewDAO;
 import com.oreum.goods.dao.goodsDAO;
 import com.oreum.goods.dto.CartRequest;
 import com.oreum.goods.dto.GoodsCartDTO;
 import com.oreum.goods.dto.GoodsOrderDTO;
 import com.oreum.goods.dto.OrderItemDTO;
+import com.oreum.goods.dto.ReviewDTO;
 import com.oreum.goods.dto.goodsDTO;
 import com.oreum.goods.dto.goodsOptionDTO;
 
@@ -41,6 +43,7 @@ public class GoodsController {
 	@Autowired GoodsCartDAO gcDAO;
 	@Autowired GoodsOrderDAO goDAO;
 	@Autowired GoodsLikeDAO likeDAO;
+	@Autowired ReviewDAO rDAO;
 	
 	//굿즈
 	@GetMapping("/listAll")
@@ -65,6 +68,7 @@ public class GoodsController {
 	public List<GoodsCartDTO> doCartList(@RequestBody Map<String,String> req){
 		String id = req.get("id");
 		List<GoodsCartDTO> fcart = gcDAO.findUserCart(Integer.parseInt(id));
+		System.out.println(fcart);
 		return fcart;
 	}
 	@PostMapping("/cartAdd")
@@ -92,10 +96,8 @@ public class GoodsController {
 	        gcDAO.addCart(dto);
 	    }
 	    if (!newItems.isEmpty()) {
-	        System.out.println("1");
 	        return "1"; // 새로 추가된 항목이 있음
 	    } else {
-	        System.out.println("0");
 	        return "0"; // 모두 기존에 존재하던 항목
 	    }
 	}
@@ -108,14 +110,12 @@ public class GoodsController {
 	@PostMapping("/selRemoveCart")
 	public String doSelRemoveCart(@RequestBody Map<String, List<Integer>> req) {
 	    List<Integer> cartIds = req.get("id");
-	    System.out.println("cartIds: "+cartIds);
 	    gcDAO.selRemoveCart(cartIds); // 이렇게 하면 MyBatis가 list로 인식함
 	    return "1";
 	}
 	@PostMapping("/deleteCart")
 	public String doDeleteCart(@RequestBody Map<String, List<Integer>> req) {
 		List<Integer> cartIds = req.get("id");
-		System.out.println("cartIds: "+cartIds);
 		gcDAO.selDeleteCart(cartIds);
 		return "1";
 	}
@@ -150,17 +150,46 @@ public class GoodsController {
 		List<GoodsOrderDTO> deliveryList = goDAO.findDeliveryList(userId);
 		return deliveryList;
 	}
+	@PostMapping("/cancelOrder")
+	public String selListOrder(@RequestBody Map<String,String> req) {
+		int id = Integer.parseInt(req.get("order_id"));
+		goDAO.cancelOrder(id);
+		return "1";
+	}
 	
-	@Scheduled(fixedRate = 60000) // 1분마다 실행
+	@Scheduled(fixedRate = 600000) // 10분마다 실행
     public void updateOrderStatusByTime() {
         LocalDateTime now = LocalDateTime.now();
 
         // 1. 결제완료 → 10분 후 배송중
-        goDAO.updateToShipping(now.minusMinutes(1));
+        goDAO.updateToShipping(now.minusMinutes(10));
 
-        // 2. 배송중 → 20분 후 배송완료
-        goDAO.updateToDelivered(now.minusMinutes(1));
+        // 2. 배송중 → 10분 후 배송완료
+        goDAO.updateToDelivered(now.minusMinutes(10));
     }
+	
+	//리뷰 기능
+	@PostMapping("/listReview")
+	public List<ReviewDTO> doListReview(@RequestParam("id") int id) {
+		List<ReviewDTO> rdto = rDAO.selectReview(id);
+		return rdto;
+	}
+	@PostMapping("/addReview")
+	public void doAddReview(@RequestBody Map<String,String> req) {
+		ReviewDTO dto = new ReviewDTO();
+		dto.setUserId(Integer.parseInt(req.get("id")));
+        dto.setGoodsId(Integer.parseInt(req.get("goodsId")));
+        dto.setOrderId(Integer.parseInt(req.get("orderId")));
+        dto.setRating(Integer.parseInt(req.get("rating")));
+        dto.setContent(req.get("review"));
+        if(req.get("imageUrl")==null||req.get("imageUrl").equals("")) {
+        	dto.setImageUrl("img");
+        	rDAO.insertReview(dto);
+        }else {
+        	dto.setImageUrl(req.get("imageUrl"));
+            rDAO.insertReview(dto);
+        }
+	}
 	
 	
 	//좋아요

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC 
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"file:///C:/Users/805-01/eclipse-workspace/padd/src/main/resources/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oreum.goods.dao.ReviewDAO">
+	<insert id="insertReview">
+	  INSERT INTO reviews (
+	    user_id, goods_id, order_id, rating, content, image_url
+	  ) VALUES (
+	    #{userId}, #{goodsId}, #{orderId}, #{rating}, #{content}, #{imageUrl}
+	  )
+	</insert>
+	<select id="selectReview" resultType="com.oreum.goods.dto.ReviewDTO">
+	  SELECT * FROM reviews WHERE goods_id=#{id}
+	</select>
+</mapper>

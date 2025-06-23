@@ -54,4 +54,7 @@
 	    (#{item.order_id}, #{item.goods_options_id}, #{item.qty}, #{item.item_price})
 	  </foreach>
 	</insert>
+	<delete id="cancelOrder">
+		DELETE FROM orders WHERE order_id = #{id};
+	</delete>
 </mapper>
