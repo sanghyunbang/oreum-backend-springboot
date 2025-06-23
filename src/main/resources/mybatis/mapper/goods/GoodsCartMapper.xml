@@ -3,12 +3,44 @@
 "-//mybatis.org//DTD Mapper 3.0//EN"
 "file:///C:/Users/805-01/eclipse-workspace/padd/src/main/resources/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oreum.goods.dao.GoodsCartDAO">
-  <select id="findUserCart" resultType="com.oreum.goods.dto.GoodsCartDTO">
-  	SELECT c.cart_id, c.user_id, c.qty, c.added_at,  o.id AS option_id, o.option_name, o.stock_qty,
-	       g.id AS goods_id, g.name AS goods_name, g.price, g.salePercent, g.img, g.brand, g.status
-	FROM cart c
-	JOIN GoodsOptions o ON c.goods_option_id = o.id JOIN goods g ON o.goods_id = g.id
-	WHERE c.user_id = #{id};
+  <resultMap id="GoodsCartMap" type="com.oreum.goods.dto.GoodsCartDTO">
+    <result property="cart_id" column="cart_id"/>
+    <result property="user_id" column="user_id"/>
+    <result property="goods_option_id" column="goods_option_id"/>
+    <result property="qty" column="qty"/>
+    <result property="added_at" column="added_at"/>
+    <result property="option_id" column="option_id"/>
+    <result property="option_name" column="option_name"/>
+    <result property="stock_qty" column="stock_qty"/>
+    <result property="goods_id" column="goods_id"/>
+    <result property="goods_name" column="goods_name"/>
+    <result property="price" column="price"/>
+    <result property="salePercent" column="salePercent"/>
+    <result property="img" column="img"/>
+    <result property="brand" column="brand"/>
+    <result property="status" column="status"/>
+  </resultMap>
+  <select id="findUserCart" resultMap="GoodsCartMap">
+    SELECT 
+      c.cart_id, 
+      c.user_id, 
+      c.goods_option_id, 
+      c.qty, 
+      c.added_at,  
+      o.id AS option_id, 
+      o.option_name, 
+      o.stock_qty,
+      g.id AS goods_id, 
+      g.name AS goods_name, 
+      g.price, 
+      g.salePercent, 
+      g.img,
+      g.brand, 
+      g.status
+    FROM cart c
+    JOIN GoodsOptions o ON c.goods_option_id = o.id 
+    JOIN goods g ON o.goods_id = g.id
+    WHERE c.user_id = #{id}
   </select>
   <select id="existsCart" resultType="int">
 	SELECT 1 FROM cart WHERE user_id = #{userId} AND goods_option_id = #{goodsOptionId} LIMIT 1

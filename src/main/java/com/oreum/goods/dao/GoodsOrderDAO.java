@@ -24,4 +24,6 @@ public interface GoodsOrderDAO {
 
 	@Update("UPDATE orders SET status = '배송완료', status_updated_at = NOW() WHERE status = '배송중' AND status_updated_at <= #{threshold}")
 	void updateToDelivered(LocalDateTime minusMinutes);
+
+	void cancelOrder(@Param("id") int id);
 }
