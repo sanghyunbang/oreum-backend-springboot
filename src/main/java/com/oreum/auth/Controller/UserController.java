@@ -50,6 +50,57 @@ public class UserController {
             "message", "Unauthorized"
         ));
     }
+    
+    @PostMapping("/details")
+    public ResponseEntity<?> getUserDetails(@RequestBody Map<String, Integer> requestBody) {
+    	System.out.println("                            사용자 정보 마이페이지");
+
+    	Integer userId = requestBody.get("userId");
+        System.out.println("                            POST 요청으로 받은 userId: " + userId);
+
+        if (userId == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "userId가 필요합니다."));
+        }
+
+        UserRecordDTO userDetails = userMapper.findByUserId(userId);
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
+        }
+               
+        return ResponseEntity.ok(userDetails);
+    }
+    
+    @PutMapping("/details")
+    public ResponseEntity<?> updateUserDetails(@RequestBody UserRecordDTO updatedUser, HttpServletRequest request) {
+    	System.out.println("                                  유저 정보 수정");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.getPrincipal() instanceof CustomOAuth2User user) {
+            String email = user.getUserName();
+            Integer userId = userMapper.selectUserIdByEmail(email);
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "사용자를 찾을 수 없습니다."));
+            }
+
+            // 업데이트할 데이터 설정
+            UserRecordDTO existing = userMapper.findByUserId(userId);
+            existing.setName(updatedUser.getName());
+            existing.setNickname(updatedUser.getNickname());
+            existing.setProfileImage(updatedUser.getProfileImage());
+            existing.setAddress(updatedUser.getAddress());
+
+            // 업데이트 실행
+            userMapper.updateUserDetails(existing);
+
+            return ResponseEntity.ok(existing);
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+            "message", "로그인이 필요합니다"
+        ));
+    }
+
+
 
     /**
      *  userId로 nickname 조회 (예: 게시글 작성 시)

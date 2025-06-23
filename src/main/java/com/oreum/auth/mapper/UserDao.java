@@ -13,5 +13,7 @@ public interface UserDao {
     void updateLoginInfo(UserRecordDTO user);
     Integer selectUserIdByEmail(@Param("email") String email);
     String userNameByuserId(@Param("userId") int userId);
+    UserRecordDTO findByUserId(@Param("userId") int userId);
+    void updateUserDetails(UserRecordDTO user);
 
 }

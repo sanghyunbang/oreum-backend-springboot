@@ -74,5 +74,34 @@
         FROM users
         WHERE user_id = #{userId}
     </select>
+    <!-- userId로 전체 사용자 정보 가져오기 -->
+<select id="findByUserId" parameterType="int" resultType="com.oreum.auth.dto.UserRecordDTO">
+    SELECT
+        user_id AS userId,
+        email,
+        password_hash AS passwordHash,
+        name,
+        nickname,
+        profile_image AS profileImage,
+        address,
+        points,
+        role,
+        status,
+        last_login AS lastLogin,
+        created_at AS createdAt
+    FROM users
+    WHERE user_id = #{userId}
+</select>
+<update id="updateUserDetails" parameterType="com.oreum.auth.dto.UserRecordDTO">
+    UPDATE users
+    SET
+        name = #{name},
+        nickname = #{nickname},
+        profile_image = #{profileImage},
+        address = #{address}
+    WHERE user_id = #{userId}
+</update>
+
+    
 
 </mapper>

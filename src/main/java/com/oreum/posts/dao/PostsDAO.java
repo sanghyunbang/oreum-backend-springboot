@@ -53,5 +53,14 @@ public interface PostsDAO {
 	// 특정 유저가 북마크한 postId 목록
 	List<Integer> getBookmarkedPostIdsByUser(int userId);
 
+	// 내가 쓴 글
+	List<PostsDTO> getPostsByUserId(@Param("userId") int userId);
+
+	// 내가 쓴 덧글
+	List<CommentDTO> getCommentsByUserId(@Param("userId") int userId);
+
+	// 좋아요한 게시물 ID 리스트
+	List<Integer> getLikedPostIdsByUser(@Param("userId") int userId);
+
 
 }

@@ -229,7 +229,47 @@ public class postController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("북마크 여부 확인 실패");
         }
     }
+    
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<?> getPostsByUser(@PathVariable("userId") int userId) {
+    	System.out.println("                               사용자가 쓴 글 조회");
+        try {
+            List<PostsDTO> posts = pd.getPostsByUserId(userId);
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("내가 쓴 글 조회 실패");
+        }
+    }
+    
+    @GetMapping("/comments/user/{userId}")
+    public ResponseEntity<?> getCommentsByUser(@PathVariable("userId") int userId) {
+    	System.out.println("                                 사용자가 쓴 댓글＃ 조회");
+        try {
+            List<CommentDTO> comments = pd.getCommentsByUserId(userId);
+            return ResponseEntity.ok(comments);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("내가 쓴 댓글 조회 실패");
+        }
+    }
+    
+    @GetMapping("/likes/user/{userId}")
+    public ResponseEntity<?> getLikedPosts(@PathVariable("userId") int userId) {
+    	System.out.println("                                  사용자가 좋아요 누른 게시물 조회"
+    						+ "\n 유저 id : " + userId);
+        try {
+            List<Integer> likedPostIds = pd.getLikedPostIdsByUser(userId);
+            List<PostsDTO> likedPosts = new ArrayList<>();
+            for (int postId : likedPostIds) {
+                PostsDTO post = pd.getPostById(postId);
+                if (post != null) likedPosts.add(post);
+            }
+            return ResponseEntity.ok(likedPosts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("좋아요한 게시물 조회 실패");
+        }
+    }
 
-
- 
 }

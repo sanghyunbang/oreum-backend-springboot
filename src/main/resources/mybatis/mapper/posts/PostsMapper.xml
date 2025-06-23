@@ -178,8 +178,49 @@
 <select id="getBookmarkedPostIdsByUser" resultType="int">
   SELECT post_id FROM bookmarks WHERE user_id = #{userId}
 </select>
+<!-- 내가 쓴 글 가져오기 -->
+<select id="getPostsByUserId" resultType="com.oreum.posts.dto.PostsDTO" parameterType="int">
+  SELECT 
+    p.post_id AS postId,
+    p.user_id AS userId,
+    u.nickname,
+    p.board_id AS boardId,
+    p.type,
+    p.title,
+    p.content,
+    p.like_count AS likeCount,
+    p.comment_count AS commentCount,
+    p.is_deleted AS isDeleted,
+    p.created_at AS createdAt,
+    p.updated_at AS updatedAt
+  FROM posts p
+  JOIN users u ON p.user_id = u.user_id
+  WHERE p.user_id = #{userId}
+  ORDER BY p.created_at DESC
+</select>
 
+<!-- 내가 쓴 덧글 가져오기 -->
+<select id="getCommentsByUserId" resultType="com.oreum.posts.dto.CommentDTO" parameterType="int">
+  SELECT
+    c.comment_id AS commentId,
+    c.post_id AS postId,
+    c.user_id AS userId,
+    u.nickname AS nickname,
+    c.parent_id AS parentId,
+    c.content,
+    c.like_count AS likeCount,
+    c.created_at AS createdAt,
+    c.updated_at AS updatedAt
+  FROM comments c
+  JOIN users u ON c.user_id = u.user_id
+  WHERE c.user_id = #{userId}
+  ORDER BY c.created_at DESC
+</select>
 
+<!-- 좋아요한 게시물 ID 가져오기 -->
+<select id="getLikedPostIdsByUser" resultType="int" parameterType="int">
+  SELECT post_id FROM post_likes WHERE user_id = #{userId}
+</select>
 
 
   </mapper>
