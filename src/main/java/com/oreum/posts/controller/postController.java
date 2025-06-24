@@ -169,17 +169,13 @@ public class postController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("좋아요 처리 실패");
         }
-        
     }
 
-    
     @PostMapping("/bookmark")
     public ResponseEntity<?> toggleBookmark(@RequestBody BookmarkDTO bookmarkDTO) {
     	int userId = bookmarkDTO.getUserId();
         int postId = bookmarkDTO.getPostId();
-
         System.out.println("		북마크 토글 요청: postId=" + postId + ", userId=" + userId);
-
         try {
             BookmarkDTO existingBookmark = pd.getBookmark(postId, userId);
             System.out.println("                 북마크 데이터 겟 체크 : "+existingBookmark);
@@ -217,9 +213,7 @@ public class postController {
     public ResponseEntity<?> isPostBookmarked(
             @PathVariable("postId") int postId,
             @RequestParam("userId") int userId) {
-
         System.out.println("		북마크 여부 확인 요청: postId=" + postId + ", userId=" + userId);
-        
         try {
             BookmarkDTO bookmark = pd.getBookmark(postId, userId);
             boolean bookmarked = (bookmark != null);
@@ -257,9 +251,11 @@ public class postController {
     @GetMapping("/likes/user/{userId}")
     public ResponseEntity<?> getLikedPosts(@PathVariable("userId") int userId) {
     	System.out.println("                                  사용자가 좋아요 누른 게시물 조회"
-    						+ "\n 유저 id : " + userId);
+    						+ "\n                                  유저 id : " + userId);
         try {
             List<Integer> likedPostIds = pd.getLikedPostIdsByUser(userId);
+            System.out.println("                                   likedPostIds 값 확인 : "+likedPostIds);
+            
             List<PostsDTO> likedPosts = new ArrayList<>();
             for (int postId : likedPostIds) {
                 PostsDTO post = pd.getPostById(postId);
@@ -271,5 +267,22 @@ public class postController {
             return ResponseEntity.internalServerError().body("좋아요한 게시물 조회 실패");
         }
     }
-
+    
+    @GetMapping("/bookmarks/user/{userId}")
+    public ResponseEntity<?> getBookmarks(@PathVariable("userId") int userId){
+    	System.out.println("                        북마크 게시물 조회");
+    	try {
+    		List<Integer> bookmarkIds = pd.getbookmarkIdsByUser(userId);
+    		System.out.println("                                   bookmarkId 값 확인 : " +  bookmarkIds);
+    				
+    			List<PostsDTO> bookmarks = new ArrayList<>();
+    		for(int postId : bookmarkIds) {
+    			PostsDTO post = pd.getPostById(postId);
+    				if(post != null) bookmarks.add(post);
+    		}
+    		return ResponseEntity.ok(bookmarks);
+    	}catch(Exception e){
+    		return ResponseEntity.internalServerError().body("북마크 게시물 조회 실패");
+    	}
+    }
 }

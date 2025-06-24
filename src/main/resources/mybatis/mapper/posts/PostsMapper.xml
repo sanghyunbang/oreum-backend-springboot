@@ -221,6 +221,8 @@
 <select id="getLikedPostIdsByUser" resultType="int" parameterType="int">
   SELECT post_id FROM post_likes WHERE user_id = #{userId}
 </select>
-
+<select id="getbookmarkIdsByUser" resultType="int" parameterType="int">
+SELECT post_id FROM bookmarks WHERE user_id = #{userId}
+</select>
 
   </mapper>
