@@ -51,6 +51,42 @@ public class UserController {
         ));
     }
     
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(HttpServletRequest request, HttpServletResponse response) {
+    	System.out.println("                                      유저탈퇴 진입 id : ");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.getPrincipal() instanceof CustomOAuth2User user) {
+            String email = user.getUserName();
+            Integer userId = userMapper.selectUserIdByEmail(email);
+
+            if (userId == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "사용자를 찾을 수 없습니다."));
+            }
+
+            // 1. DB에서 사용자 삭제
+            userMapper.deleteUserById(userId);
+
+            // 2. 쿠키 제거 (accessToken, refreshToken)
+            for (String name : new String[]{"accessToken", "refreshToken"}) {
+                Cookie cookie = new Cookie(name, null);
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                cookie.setHttpOnly(true);
+                cookie.setSecure(false);
+                response.addCookie(cookie);
+            }
+
+            // 3. SecurityContext 비우기 (선택)
+            SecurityContextHolder.clearContext();
+
+            return ResponseEntity.ok(Map.of("message", "회원 탈퇴 완료"));
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
+    }
+
+    
     @PostMapping("/details")
     public ResponseEntity<?> getUserDetails(@RequestBody Map<String, Integer> requestBody) {
     	System.out.println("                            사용자 정보 마이페이지");
@@ -66,7 +102,7 @@ public class UserController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
         }
-               
+        
         return ResponseEntity.ok(userDetails);
     }
     
@@ -88,7 +124,7 @@ public class UserController {
             existing.setNickname(updatedUser.getNickname());
             existing.setProfileImage(updatedUser.getProfileImage());
             existing.setAddress(updatedUser.getAddress());
-
+            existing.setPoints(updatedUser.getPoints());
             // 업데이트 실행
             userMapper.updateUserDetails(existing);
 

@@ -15,5 +15,7 @@ public interface UserDao {
     String userNameByuserId(@Param("userId") int userId);
     UserRecordDTO findByUserId(@Param("userId") int userId);
     void updateUserDetails(UserRecordDTO user);
+    void deleteUserById(@Param("userId") int userId);
+
 
 }

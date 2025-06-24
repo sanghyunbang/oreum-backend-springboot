@@ -26,6 +26,7 @@
 	        <result property="brand" column="brand"/>
 	        <result property="img" column="img"/>
 	        <result property="option_name" column="option_name"/>
+	        <result property="reviewWritten" column="review_written" />
 	    </collection>
 	</resultMap>
 	
@@ -34,7 +35,9 @@
 	           o.zipcode, o.address_basic AS addressbasic, o.address_detail AS addressdetail,
 	           o.request, o.used_point AS point, o.total_price AS total, o.status, o.ordered_at,
 	           oi.order_item_id, oi.goods_options_id, oi.qty, oi.item_price,
-	           g.name AS goods_name, g.brand, g.img, go.option_name
+	           g.name AS goods_name, g.brand, g.img, go.option_name, 
+	           CASE WHEN EXISTS (SELECT 1 FROM reviews r WHERE r.order_item_id = oi.order_item_id) THEN TRUE ELSE FALSE END AS review_written 
+	           <!-- 각 order_item_id에 대해 리뷰 존재 여부 추가 -->
 	    FROM orders o
 	    JOIN order_items oi ON o.order_id = oi.order_id
 	    JOIN GoodsOptions go ON oi.goods_options_id = go.id
@@ -42,6 +45,11 @@
 	    WHERE o.user_id = 1 AND o.status IN ('결제완료', '배송중', '배송완료')
 	    ORDER BY o.ordered_at DESC
 	</select>
+	<update id="updateReview" parameterType="int">
+		UPDATE order_items
+		SET review_written = TRUE
+		WHERE order_item_id = #{orderItemId};
+	</update>
 
 	<insert id="addOrder" parameterType="com.oreum.goods.dto.GoodsOrderDTO" useGeneratedKeys="true" keyProperty="order_id">
 		insert into orders (user_id, receiver_name, receiver_phone, zipcode, address_basic, address_detail, request, used_point, total_price, status)

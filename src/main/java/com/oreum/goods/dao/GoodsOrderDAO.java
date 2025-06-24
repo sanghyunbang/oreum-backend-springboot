@@ -26,4 +26,7 @@ public interface GoodsOrderDAO {
 	void updateToDelivered(LocalDateTime minusMinutes);
 
 	void cancelOrder(@Param("id") int id);
+
+	void updateReview(@Param("orderItemId") int order_item_id);
+	
 }

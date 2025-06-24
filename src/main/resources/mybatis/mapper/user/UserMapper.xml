@@ -98,9 +98,13 @@
         name = #{name},
         nickname = #{nickname},
         profile_image = #{profileImage},
-        address = #{address}
+        address = #{address},
+        points = #{points}
     WHERE user_id = #{userId}
 </update>
+<delete id="deleteUserById" parameterType="int">
+    DELETE FROM users WHERE user_id = #{userId}
+</delete>
 
     
 

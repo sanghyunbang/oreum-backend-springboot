@@ -61,6 +61,6 @@ public interface PostsDAO {
 
 	// 좋아요한 게시물 ID 리스트
 	List<Integer> getLikedPostIdsByUser(@Param("userId") int userId);
-
-
+	// 북마크한 게시물 ID 리스트
+	List<Integer> getbookmarkIdsByUser(@Param("userId") int userId);
 }
