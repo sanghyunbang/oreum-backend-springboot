@@ -14,4 +14,7 @@ public class OrderItemDTO {
     private String brand;
     private String img;
     private String option_name;
+    
+    // 리뷰 작성 여부
+    private boolean reviewWritten;
 }

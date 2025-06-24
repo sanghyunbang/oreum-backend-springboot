@@ -45,7 +45,7 @@ public class GoodsController {
 	@Autowired GoodsLikeDAO likeDAO;
 	@Autowired ReviewDAO rDAO;
 	
-	//굿즈
+	//상품
 	@GetMapping("/listAll")
 	public List<goodsDTO> doListAll() {
 	    return gDAO.findAllGoods();
@@ -61,7 +61,6 @@ public class GoodsController {
 		List<goodsOptionDTO> fgoodsOpt = goptDAO.findGoodsOptions(id);
 		return fgoodsOpt;
 	}
-	
 	
 	//장바구니
 	@PostMapping("/cartList")
@@ -136,17 +135,18 @@ public class GoodsController {
 	    odto.setTotal(order.getTotal());
 
 	    goDAO.addOrder(odto);
-
 	    return ResponseEntity.ok(odto.getOrder_id());  // ✅ order_id 반환
 	}
 	@PostMapping("addOrderItem")
 	public void addOrderItem(@RequestBody Map<String, List<OrderItemDTO>> req) {
+		System.out.println(req.get("items"));
 	    List<OrderItemDTO> items = req.get("items");
 	    goDAO.addItemOrder(items); // ✅ 바로 리스트 전달
+//	    goptDAO.deleteQty(req.get("items"));
 	}
 	@PostMapping("/deliveryList")
 	public List<GoodsOrderDTO> doOrderList(@RequestBody Map<String,String> req){
-		int userId = Integer.parseInt(req.get("userId"));
+		int userId = Integer.parseInt("deliveryList"+req.get("userId"));
 		List<GoodsOrderDTO> deliveryList = goDAO.findDeliveryList(userId);
 		return deliveryList;
 	}
@@ -169,26 +169,31 @@ public class GoodsController {
     }
 	
 	//리뷰 기능
-	@PostMapping("/listReview")
+	@GetMapping("/listReview")
 	public List<ReviewDTO> doListReview(@RequestParam("id") int id) {
 		List<ReviewDTO> rdto = rDAO.selectReview(id);
+		System.out.println("rdto: "+rdto);
 		return rdto;
 	}
 	@PostMapping("/addReview")
 	public void doAddReview(@RequestBody Map<String,String> req) {
+		String imageUrl = req.get("imageUrl");
+		System.out.println("imageUrl: "+imageUrl);
+		
 		ReviewDTO dto = new ReviewDTO();
 		dto.setUserId(Integer.parseInt(req.get("id")));
-        dto.setGoodsId(Integer.parseInt(req.get("goodsId")));
+        dto.setOrderItemId(Integer.parseInt(req.get("orderItemId")));
         dto.setOrderId(Integer.parseInt(req.get("orderId")));
         dto.setRating(Integer.parseInt(req.get("rating")));
         dto.setContent(req.get("review"));
-        if(req.get("imageUrl")==null||req.get("imageUrl").equals("")) {
-        	dto.setImageUrl("img");
+        if(req.get("imageUrl")==null) {
+        	dto.setImageUrl("");
         	rDAO.insertReview(dto);
         }else {
         	dto.setImageUrl(req.get("imageUrl"));
             rDAO.insertReview(dto);
         }
+        goDAO.updateReview(Integer.parseInt(req.get("orderItemId")));
 	}
 	
 	

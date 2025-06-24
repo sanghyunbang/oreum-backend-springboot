@@ -5,12 +5,28 @@
 <mapper namespace="com.oreum.goods.dao.ReviewDAO">
 	<insert id="insertReview">
 	  INSERT INTO reviews (
-	    user_id, goods_id, order_id, rating, content, image_url
+	    user_id, order_item_id, order_id, rating, content, image_url
 	  ) VALUES (
-	    #{userId}, #{goodsId}, #{orderId}, #{rating}, #{content}, #{imageUrl}
+	    #{userId}, #{orderItemId}, #{orderId}, #{rating}, #{content}, #{imageUrl}
 	  )
 	</insert>
 	<select id="selectReview" resultType="com.oreum.goods.dto.ReviewDTO">
-	  SELECT * FROM reviews WHERE goods_id=#{id}
+	  SELECT 
+	    r.review_id AS reviewId,
+	    r.rating,
+	    r.content,
+	    r.image_url AS imageUrl,
+	    r.created_at AS createdAt,
+	    u.nickname,
+	    u.profile_image AS profileImage,
+	    g.name AS goodsName,
+	    go.option_name AS optionName,
+	    oi.qty
+	  FROM reviews r
+	  JOIN users u ON r.user_id = u.user_id 
+	  JOIN order_items oi ON r.order_item_id = oi.order_item_id
+	  JOIN goodsoptions go ON oi.goods_options_id = go.id
+	  JOIN goods g ON go.goods_id = g.id
+	  WHERE g.id = #{id}
 	</select>
 </mapper>
