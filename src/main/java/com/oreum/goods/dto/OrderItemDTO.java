@@ -10,6 +10,7 @@ public class OrderItemDTO {
     private int qty;                 // 수량
     private int item_price;          // 개별 또는 총 가격
     
+    private int goods_id;
     private String goods_name;
     private String brand;
     private String img;

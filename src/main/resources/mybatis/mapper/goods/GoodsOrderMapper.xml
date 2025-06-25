@@ -19,6 +19,7 @@
 	    
 	    <collection property="items" ofType="com.oreum.goods.dto.OrderItemDTO">
 	        <id property="order_item_id" column="order_item_id"/>
+	        <result property="goods_id" column="goods_id" />
 	        <result property="goods_options_id" column="goods_options_id"/>
 	        <result property="qty" column="qty"/>
 	        <result property="item_price" column="item_price"/>
@@ -35,7 +36,7 @@
 	           o.zipcode, o.address_basic AS addressbasic, o.address_detail AS addressdetail,
 	           o.request, o.used_point AS point, o.total_price AS total, o.status, o.ordered_at,
 	           oi.order_item_id, oi.goods_options_id, oi.qty, oi.item_price,
-	           g.name AS goods_name, g.brand, g.img, go.option_name, 
+	           g.id AS goods_id, g.name AS goods_name, g.brand, g.img, go.option_name, 
 	           CASE WHEN EXISTS (SELECT 1 FROM reviews r WHERE r.order_item_id = oi.order_item_id) THEN TRUE ELSE FALSE END AS review_written 
 	           <!-- 각 order_item_id에 대해 리뷰 존재 여부 추가 -->
 	    FROM orders o
@@ -63,6 +64,9 @@
 	  </foreach>
 	</insert>
 	<delete id="cancelOrder">
-		DELETE FROM orders WHERE order_id = #{id};
+		DELETE FROM orders WHERE order_id = #{id}
 	</delete>
+	<update id="updatePoints">
+		UPDATE users SET points = points-#{point}
+	</update>
 </mapper>

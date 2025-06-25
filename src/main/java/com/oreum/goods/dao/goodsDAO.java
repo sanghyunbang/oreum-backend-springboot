@@ -17,4 +17,6 @@ public interface goodsDAO {
 	void decreaseLikes(@Param("userId") int userId, @Param("goodsId") int goodsId);
 
 	void increaseLikes(@Param("userId") int userId, @Param("goodsId") int goodsId);
+
+	void insertGoods(goodsDTO dto);
 }

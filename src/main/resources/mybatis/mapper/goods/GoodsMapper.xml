@@ -3,6 +3,10 @@
 "-//mybatis.org//DTD Mapper 3.0//EN"
 "file:///C:/Users/805-01/eclipse-workspace/padd/src/main/resources/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oreum.goods.dao.goodsDAO">
+  <insert id="insertGoods" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO goods (name, category, brand, price, salePercent, description, img, status, created_at, updated_at)
+    VALUES (#{name}, #{category}, #{brand}, #{price}, #{salePercent}, #{description}, #{img}, #{status}, NOW(), NOW())
+  </insert>
   <select id="findAllGoods" resultType="com.oreum.goods.dto.goodsDTO">
     SELECT * FROM goods
   </select>

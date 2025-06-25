@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import com.oreum.goods.dto.GoodsOrderDTO;
@@ -28,5 +29,13 @@ public interface GoodsOrderDAO {
 	void cancelOrder(@Param("id") int id);
 
 	void updateReview(@Param("orderItemId") int order_item_id);
+
+	@Update("UPDATE users SET points = points+#{points} where user_id=#{id}")
+	void addPoints(@Param("id") int userId, @Param("points") int points);
+
+	@Select("SELECT points FROM users where user_id=#{userId}")
+	String getUserPoints(@Param("userId") int userId);
+
+	void updatePoints(GoodsOrderDTO odto);
 	
 }

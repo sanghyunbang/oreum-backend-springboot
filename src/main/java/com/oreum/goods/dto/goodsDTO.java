@@ -15,7 +15,7 @@ public class goodsDTO {
     private int likes;
     private String description;
     private String img;
-    private String status;
+    private String status = "판매중";
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 }

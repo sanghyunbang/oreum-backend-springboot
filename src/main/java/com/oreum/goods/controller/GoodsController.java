@@ -1,11 +1,17 @@
 package com.oreum.goods.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.oreum.goods.dao.GoodsCartDAO;
 import com.oreum.goods.dao.GoodsLikeDAO;
@@ -46,6 +53,17 @@ public class GoodsController {
 	@Autowired ReviewDAO rDAO;
 	
 	//상품
+	@PostMapping("/addGoods")
+	public ResponseEntity<goodsDTO> addGoods(@RequestBody goodsDTO dto) {
+	    gDAO.insertGoods(dto);
+	    return ResponseEntity.ok(dto); // id 포함되어 클라이언트로 반환
+	}
+	@PostMapping("/addGoodsItem")
+	public ResponseEntity<String> addGoodsItem(@RequestBody List<goodsOptionDTO> options) {
+		System.out.println(options);
+	    goptDAO.insertGoodsOptions(options);
+	    return ResponseEntity.ok("success");
+	}
 	@GetMapping("/listAll")
 	public List<goodsDTO> doListAll() {
 	    return gDAO.findAllGoods();
@@ -135,18 +153,19 @@ public class GoodsController {
 	    odto.setTotal(order.getTotal());
 
 	    goDAO.addOrder(odto);
+	    goDAO.updatePoints(odto);  //결제 포인트 차감
 	    return ResponseEntity.ok(odto.getOrder_id());  // ✅ order_id 반환
 	}
 	@PostMapping("addOrderItem")
 	public void addOrderItem(@RequestBody Map<String, List<OrderItemDTO>> req) {
-		System.out.println(req.get("items"));
+		System.out.println("items: "+req.get("items"));
 	    List<OrderItemDTO> items = req.get("items");
 	    goDAO.addItemOrder(items); // ✅ 바로 리스트 전달
-//	    goptDAO.deleteQty(req.get("items"));
+	    goptDAO.updateQty(items);  //결제 상품 수량 차감
 	}
 	@PostMapping("/deliveryList")
 	public List<GoodsOrderDTO> doOrderList(@RequestBody Map<String,String> req){
-		int userId = Integer.parseInt("deliveryList"+req.get("userId"));
+		int userId = Integer.parseInt(req.get("userId"));
 		List<GoodsOrderDTO> deliveryList = goDAO.findDeliveryList(userId);
 		return deliveryList;
 	}
@@ -193,7 +212,8 @@ public class GoodsController {
         	dto.setImageUrl(req.get("imageUrl"));
             rDAO.insertReview(dto);
         }
-        goDAO.updateReview(Integer.parseInt(req.get("orderItemId")));
+        goDAO.updateReview(Integer.parseInt(req.get("orderItemId")));		//리뷰 작성 여부 확인
+        goDAO.addPoints(Integer.parseInt(req.get("id")),75);	//리뷰 작성시 75포인트 추가
 	}
 	
 	
@@ -214,9 +234,45 @@ public class GoodsController {
             return ResponseEntity.ok("liked");
         }
     }
-
     @PostMapping("/like/check")
     public boolean checkLike(@RequestBody Map<String, Integer> req) {
         return likeDAO.existsLike(req.get("userId"), req.get("goodsId"));
     }
+    
+    //포인트
+    @PostMapping("/getUserPoints")
+    public String doGetUserPoints(@RequestBody Map<String, String> req) {
+    	int userId = Integer.parseInt(req.get("userId"));
+    	return goDAO.getUserPoints(userId);
+    }
+    
+    
+    
+    private final String UPLOAD_DIR = "C:/upload/img/"; // 실제 저장 경로
+
+    @PostMapping("/upload")
+    public ResponseEntity<List<String>> uploadImages(@RequestParam("images") List<MultipartFile> files) {
+        List<String> imagePaths = new ArrayList<>();
+        String uploadDir = "C:/upload/img/";
+
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                try {
+                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                    Path path = Paths.get(uploadDir + fileName);
+
+                    Files.createDirectories(path.getParent()); // 폴더 없으면 생성
+                    Files.write(path, file.getBytes());
+
+                    imagePaths.add("/img/" + fileName);
+                } catch (IOException e) {
+                    e.printStackTrace(); // ❗ 콘솔에 에러 출력 확인
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }
+        }
+
+        return ResponseEntity.ok(imagePaths); // 응답 꼭 돌려줘야 함
+    }
+
 }
