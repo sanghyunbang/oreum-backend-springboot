@@ -224,5 +224,52 @@
 <select id="getbookmarkIdsByUser" resultType="int" parameterType="int">
 SELECT post_id FROM bookmarks WHERE user_id = #{userId}
 </select>
+<!-- 특정 커뮤니티(boardId)의 게시글 가져오기 -->
+<select id="getPostsByBoardId" resultType="com.oreum.posts.dto.PostsDTO" parameterType="int">
+  SELECT 
+    p.post_id AS postId,
+    p.user_id AS userId,
+    u.nickname,
+    p.board_id AS boardId,
+    p.type,
+    p.title,
+    p.content,
+    p.like_count AS likeCount,
+    p.comment_count AS commentCount,
+    p.is_deleted AS isDeleted,
+    p.created_at AS createdAt,
+    p.updated_at AS updatedAt
+  FROM posts p
+  JOIN users u ON p.user_id = u.user_id
+  WHERE p.board_id = #{boardId}
+  ORDER BY p.created_at DESC
+</select>
+<update id="updatePost" parameterType="com.oreum.posts.dto.PostsDTO">
+    UPDATE posts
+    SET title = #{title},
+        content = #{content},
+        updated_at = NOW()
+    WHERE post_id = #{postId}
+</update>
+<delete id="deletePost">
+  DELETE FROM posts WHERE post_id = #{postId}
+</delete>
+<select id="getNicknameByUserId" resultType="string">
+    SELECT nickname FROM users WHERE user_id = #{userId}
+</select>
+<!-- 댓글 수정 -->
+<update id="updateComment" parameterType="com.oreum.posts.dto.CommentDTO">
+  UPDATE comments
+  SET content = #{content},
+      updated_at = #{updatedAt}
+  WHERE comment_id = #{commentId}
+</update>
+
+<!-- 댓글 삭제 -->
+<delete id="deleteComment" parameterType="int">
+  DELETE FROM comments WHERE comment_id = #{commentId}
+</delete>
+
+
 
   </mapper>

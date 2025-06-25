@@ -86,7 +86,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "로그인이 필요합니다."));
     }
 
-    
     @PostMapping("/details")
     public ResponseEntity<?> getUserDetails(@RequestBody Map<String, Integer> requestBody) {
     	System.out.println("                            사용자 정보 마이페이지");
@@ -135,8 +134,6 @@ public class UserController {
             "message", "로그인이 필요합니다"
         ));
     }
-
-
 
     /**
      *  userId로 nickname 조회 (예: 게시글 작성 시)

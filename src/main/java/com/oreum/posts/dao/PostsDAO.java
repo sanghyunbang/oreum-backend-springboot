@@ -63,4 +63,21 @@ public interface PostsDAO {
 	List<Integer> getLikedPostIdsByUser(@Param("userId") int userId);
 	// 북마크한 게시물 ID 리스트
 	List<Integer> getbookmarkIdsByUser(@Param("userId") int userId);
+	//커뮤니티에서 받은 boardId로 포스트 호출
+	List<PostsDTO> getPostsByBoardId(int boardId);
+	//게시글 수정
+	void updatePost(PostsDTO postDTO);
+	//게시물 삭제
+	void deletePost(@Param("postId") int postId);
+	// 유저 ID로 닉네임 가져오기
+	String getNicknameByUserId(@Param("userId") int userId);
+	
+	// 댓글 수정
+	public void updateComment(CommentDTO comment);
+	// 댓글 삭제
+	public void deleteComment(int commentId);
+
+
+
+
 }
