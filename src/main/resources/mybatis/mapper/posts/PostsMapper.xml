@@ -271,5 +271,34 @@ SELECT post_id FROM bookmarks WHERE user_id = #{userId}
 </delete>
 
 
+<select id="getPostsByCommunityId" parameterType="int" resultType="com.oreum.posts.dto.PostsDTO">
+        SELECT
+            p.post_id AS postId,
+            p.board_id AS boardId,
+            p.category_id AS categoryId,
+            p.creator_id AS creatorId,
+            u.nickname AS creatorNickname,
+            p.title,
+            p.content,
+            p.views,
+            p.likes AS postLikes,
+            p.location,
+            p.latitude,
+            p.longitude,
+            p.created_at AS createdAt,
+            p.updated_at AS updatedAt,
+            p.post_type AS postType,
+            p.parent_post_id AS parentPostId,
+            p.start_date AS startDate,
+            p.end_date AS endDate,
+            p.max_participants AS maxParticipants,
+            p.current_participants AS currentParticipants,
+            p.meeting_time AS meetingTime
+        FROM posts p
+        JOIN users u ON p.creator_id = u.user_id
+        WHERE p.board_id = #{communityId}
+        ORDER BY p.created_at DESC
+    </select>
+
 
   </mapper>

@@ -140,7 +140,8 @@ public class SecurityConfig {
                             "/api/**",
                             "/public/**",
                             "/api/community/**", "/community/**",
-                            "/api/posts/**", "/posts/**"
+                            "/api/posts/**", "/posts/**",
+                            "/posts/*/comments"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

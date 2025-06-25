@@ -76,8 +76,10 @@ public interface PostsDAO {
 	public void updateComment(CommentDTO comment);
 	// 댓글 삭제
 	public void deleteComment(int commentId);
-
-
+	
+	
+	// 커뮤니티 조회 앱
+	List<PostsDTO> getPostsByCommunityId(@Param("communityId") int communityId);
 
 
 }

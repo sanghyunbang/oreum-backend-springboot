@@ -79,5 +79,4 @@ public class communityController {
         List<communityDTO> list = _comm.getAllCommunities();
         return ResponseEntity.ok(list);
     }
-    
 }
