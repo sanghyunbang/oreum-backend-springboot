@@ -286,8 +286,6 @@ public class postController {
     	}catch(Exception e){
     		return ResponseEntity.internalServerError().body("북마크 게시물 조회 실패");
     	}
-    }
-    @GetMapping("/board/{boardId}")
 
     }
     // 앱  추가: 특정 커뮤니티의 게시글 목록 조회
