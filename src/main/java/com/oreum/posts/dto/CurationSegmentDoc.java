@@ -2,6 +2,8 @@ package com.oreum.posts.dto;
 
 import java.util.List;
 
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import lombok.Data;
 
 @Data
@@ -11,8 +13,8 @@ public class CurationSegmentDoc {
     private String pointerName;
     private String difficulty;
     private String caution;
-    private List<String> facilities;
-    private Object geometry; // GeoJSON 형태
-    private List<String> mediaUrls; // S3에 저장된 URL
-    private int postId;
+    private List<String> facility; 
+    private Object geometry;// GeoJSON 형태
+    private List<String> mediaUrls;// S3에 저장된 URL
+    private Integer curationId;
 }

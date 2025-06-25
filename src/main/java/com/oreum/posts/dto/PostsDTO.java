@@ -1,6 +1,7 @@
 package com.oreum.posts.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,4 +34,6 @@ public class PostsDTO {
     private List<MediaDTO> mediaList; // S3 업로드 결과 저장용 필드
     private List<CommentDTO> comments;
 
+    private Integer curationId; // 큐레이션 글 작성 관련  
+    private boolean isUpward; // 큐레이션 글 관련
 }

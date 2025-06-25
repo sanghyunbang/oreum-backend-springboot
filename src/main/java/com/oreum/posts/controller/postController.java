@@ -1,6 +1,7 @@
 package com.oreum.posts.controller;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import com.oreum.external.S3.S3Service;
 import com.oreum.posts.dao.PostsDAO;
 import com.oreum.posts.dto.BookmarkDTO;
 import com.oreum.posts.dto.CommentDTO;
+import com.oreum.posts.dto.PostForCurationDTO;
 import com.oreum.posts.dto.PostLikeDTO;
 import com.oreum.posts.dto.PostsDTO;
 
@@ -50,9 +52,13 @@ public class postController {
         // DB 저장하기 1 (게시글 공통 테이블)
         pd.insertpost(postDTO);
 
+        Integer generatedCurationId = null; // 큐레이션인 경우 생성
+
         // DB 저장하기 2 (큐레이션 여부 따져서 큐레이션 저장)
         if("curation".equals(postDTO.getType())){
             pd.insertCurationDetail(postDTO);
+            generatedCurationId = postDTO.getCurationId();
+
         } else if ("meeting".equals(postDTO.getType())) {
             pd.insertMeetingDetail(postDTO);
         }
@@ -66,7 +72,17 @@ public class postController {
                 pd.insertPostMedia(postDTO.getPostId(), mediaType, url);
             }
         }        
-        return ResponseEntity.ok("게시글 등록 완료");
+        // 클라이언트에 보낼 데이터 구성
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "게시글 등록 완료");
+        response.put("postId", postDTO.getPostId());
+
+        if (generatedCurationId != null) {
+            System.out.println(" 생성된 curationId: " + generatedCurationId);
+            response.put("curationId", generatedCurationId);
+        }
+
+        return ResponseEntity.ok(response);
     }
     
     @GetMapping("/list")
@@ -304,4 +320,15 @@ public class postController {
         System.out.println("[PostController Debug] Found " + posts.size() + " posts for community ID: " + communityId);
         return ResponseEntity.ok(posts);
     }
+
+    // 큐레이션 글 관련 입력
+    // @PostMapping("/curationInsert")
+    // public ResponseEntity<?> postCurationData(@RequestBody PostForCurationDTO postForCurationDTO) {
+
+    //     pd.postForCuration(postForCurationDTO);
+        
+    //     return ResponseEntity.ok("등록완료료");
+
+    // }
+    
 }

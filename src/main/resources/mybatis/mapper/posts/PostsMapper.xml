@@ -15,11 +15,15 @@
   </insert>
 
   <!-- curation_details 테이블에 저장 -->
-  <insert id="insertCurationDetail" parameterType="com.oreum.posts.dto.PostsDTO">
+  <insert id="insertCurationDetail" 
+          parameterType="com.oreum.posts.dto.PostsDTO"
+          useGeneratedKeys="true"
+          keyProperty = "curationId"
+          >
     INSERT INTO curation_details (
-      post_id, mountain_name, route, caution, nearby_attraction
+      post_id, mountain_name, isUpward
     ) VALUES (
-      #{postId}, #{mountainName}, #{route}, #{caution}, #{nearbyAttraction}
+      #{postId}, #{mountainName}, #{isUpward}
     );
   </insert>
   

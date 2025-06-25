@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import com.oreum.posts.dto.BookmarkDTO;
 import com.oreum.posts.dto.CommentDTO;
 import com.oreum.posts.dto.MediaDTO;
+import com.oreum.posts.dto.PostForCurationDTO;
 import com.oreum.posts.dto.PostLikeDTO;
 import com.oreum.posts.dto.PostsDTO;
 
@@ -80,6 +81,11 @@ public interface PostsDAO {
 	
 	// 커뮤니티 조회 앱
 	List<PostsDTO> getPostsByCommunityId(@Param("communityId") int communityId);
+
+	// 큐레이션 글 insert
+	void postForCuration(PostForCurationDTO postForCurationDTO);
+
+	// 큐레이션 글 insert 후에 해당 post 값 보내주기기
 
 
 }
