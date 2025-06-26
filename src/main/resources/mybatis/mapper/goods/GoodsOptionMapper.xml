@@ -3,6 +3,9 @@
 "-//mybatis.org//DTD Mapper 3.0//EN"
 "file:///C:/Users/805-01/eclipse-workspace/padd/src/main/resources/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.oreum.goods.dao.GoodsOptionDAO">
+  <select id="findAllItemGoods" resultType="com.oreum.goods.dto.goodsOptionDTO">
+  	SELECT * FROM GoodsOptions
+  </select>
   <insert id="insertGoodsOptions">
 	  INSERT INTO GoodsOptions (goods_id, option_name, stock_qty)
 	  VALUES
@@ -12,11 +15,9 @@
   <select id="findGoodsOptions" resultType="com.oreum.goods.dto.goodsOptionDTO">
   	SELECT * FROM GoodsOptions WHERE goods_id=#{id}
   </select>
-  <update id="updateQty">
-  	<foreach collection="items" item="item" separator=";">
-    	UPDATE GoodsOptions
-    	SET stock_qty = stock_qty - #{item.qty}
-    	WHERE id = #{item.goods_options_id}
-  	</foreach>
+  <update id="updateQtyOne">
+    UPDATE GoodsOptions
+    SET stock_qty = stock_qty - #{qty}
+    WHERE id = #{goods_options_id}
   </update>
 </mapper>

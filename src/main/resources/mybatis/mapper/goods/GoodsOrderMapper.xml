@@ -43,7 +43,7 @@
 	    JOIN order_items oi ON o.order_id = oi.order_id
 	    JOIN GoodsOptions go ON oi.goods_options_id = go.id
 	    JOIN goods g ON go.goods_id = g.id
-	    WHERE o.user_id = 1 AND o.status IN ('결제완료', '배송중', '배송완료')
+	    WHERE o.user_id = 1 AND o.status IN ('결제완료', '배송중', '배송완료','결제취소')
 	    ORDER BY o.ordered_at DESC
 	</select>
 	<update id="updateReview" parameterType="int">
@@ -63,9 +63,9 @@
 	    (#{item.order_id}, #{item.goods_options_id}, #{item.qty}, #{item.item_price})
 	  </foreach>
 	</insert>
-	<delete id="cancelOrder">
-		DELETE FROM orders WHERE order_id = #{id}
-	</delete>
+	<update id="cancelOrder">
+		UPDATE orders SET status = "결제취소" WHERE order_id = #{id}
+	</update>
 	<update id="updatePoints">
 		UPDATE users SET points = points-#{point}
 	</update>

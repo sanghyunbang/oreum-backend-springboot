@@ -13,8 +13,10 @@ public interface GoodsOptionDAO {
 
 	List<goodsOptionDTO> findGoodsOptions(@Param("id") int id);
 
-	void updateQty(@Param("items") List<OrderItemDTO> items);
+	void updateQtyOne(OrderItemDTO item);
 
 	void insertGoodsOptions(@Param("options") List<goodsOptionDTO> options);
+
+	List<goodsOptionDTO> findAllItemGoods();
 
 }
