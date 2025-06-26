@@ -4,6 +4,7 @@ import com.oreum.auth.dto.CustomOAuth2User;
 import com.oreum.auth.dto.UserRecordDTO;
 import com.oreum.auth.jwt.JWTUtil;
 import com.oreum.auth.mapper.UserDao;
+import com.oreum.external.S3.S3Service;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,6 +29,7 @@ public class UserController {
 
     private final UserDao userMapper;
     private final JWTUtil jwtUtil;
+    private final S3Service s3;
     /**
      *  로그인 복원 시 호출되는 기본 유저 정보
      * - 프론트에서 /api/user 호출 시 로그인 여부 판단 가능
@@ -101,13 +106,15 @@ public class UserController {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "사용자 정보를 찾을 수 없습니다."));
         }
+        System.out.println("                  프로필 url : " + userDetails.getProfileImage());
         
         return ResponseEntity.ok(userDetails);
     }
     
     @PutMapping("/details")
     public ResponseEntity<?> updateUserDetails(@RequestBody UserRecordDTO updatedUser, HttpServletRequest request) {
-    	System.out.println("                                  유저 정보 수정");
+    	System.out.println("                                  유저 정보 수정"
+    						+"\n                                   프로필 이미지 : " + updatedUser.getProfileImage());
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if (auth != null && auth.getPrincipal() instanceof CustomOAuth2User user) {
@@ -239,7 +246,36 @@ public class UserController {
     	        "email", user.getEmail(),
     	        "nickname", user.getNickname()
     	    ));
-    	
+    }
+    @PostMapping("/upload/media")
+    public ResponseEntity<?> uploadProfileImage(
+    		@RequestPart(value = "file") MultipartFile file,
+    	    @RequestPart("userId") String userId) {
+        System.out.println("                                                 프로필 이미지 업로드 요청된 유저 ID : " + userId);
+
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "파일이 없습니다."));
+        }
+        
+        try {
+            // 1. S3에 업로드하고 이미지 key(URL) 받기
+            String imageUrl = s3.uploadFile(file);  // 예: "profile-images/uuid_123.jpg"
+            System.out.println("                 설정된 url값"+imageUrl);
+            // 2. DB에 이미지 경로 업데이트
+            userMapper.updateProfileImage(imageUrl, Integer.parseInt(userId));
+
+            // 4. 프론트에 응답
+            return ResponseEntity.ok(Map.of(
+                "mediaUrl", imageUrl,
+                "mediaType", file.getContentType()
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "이미지 업로드 실패"));
+        }
+        
     }
     
 }

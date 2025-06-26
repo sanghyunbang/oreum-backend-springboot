@@ -105,6 +105,16 @@
 <delete id="deleteUserById" parameterType="int">
     DELETE FROM users WHERE user_id = #{userId}
 </delete>
+<update id="updateProfileImage" parameterType="com.oreum.auth.dto.UserRecordDTO">
+  UPDATE users
+  SET profile_image = #{url}
+  WHERE user_id = #{userId}
+</update>
+<select id="selectProfileImageByUserId" parameterType="int" resultType="string">
+    SELECT profile_image
+    FROM users
+    WHERE user_id = #{userId}
+</select>
 
     
 

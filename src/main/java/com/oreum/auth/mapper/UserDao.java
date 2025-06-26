@@ -16,6 +16,10 @@ public interface UserDao {
     UserRecordDTO findByUserId(@Param("userId") int userId);
     void updateUserDetails(UserRecordDTO user);
     void deleteUserById(@Param("userId") int userId);
+    void insertUserMedia(@Param("Url") String Url,
+    					 @Param("userId") String userId);
+    void updateProfileImage(@Param("url") String url, @Param("userId") int userId);
+
 
 
 }
