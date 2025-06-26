@@ -18,6 +18,9 @@ import com.oreum.posts.dao.CurationSegmentRepository;
 import com.oreum.posts.dto.CurationSegmentDoc;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 
 @RestController
@@ -33,12 +36,12 @@ public class MongoCurationController {
     
     @PostMapping(value = "/curationSegments", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadsCurationSegments(
-        @RequestPart("curationId") String curationIdstr,
+        @RequestPart("postId") String postIdstr,
         @RequestPart("segments") String segmentsJson,
         @RequestParam Map<String, MultipartFile> fileMap
     ) {
         try{
-            System.out.println("[1] curationId: " + curationIdstr);
+            System.out.println("[1] postId: " + postIdstr);
             System.out.println("[2] segmentsJson: " + segmentsJson);
             System.out.println("[3] fileMap keys: " + fileMap.keySet());
 
@@ -64,7 +67,7 @@ public class MongoCurationController {
                 }
 
                 // segment.setPostId(Integer.parseInt(curationId));
-                segment.setCurationId(Integer.parseInt(curationIdstr));
+                segment.setPostId(Integer.parseInt(postIdstr));
                 segment.setMediaUrls(mediaUrls);
             }
             
@@ -80,5 +83,15 @@ public class MongoCurationController {
             return ResponseEntity.internalServerError().body("Mongo 저장 실패: "+ e.getMessage());
         }
     }
-    
+
+    @GetMapping("/curationSegments/{postId}")
+    public ResponseEntity<?> getSegmentsByPostId(@PathVariable("postId") int postId) {
+        try {
+            List<CurationSegmentDoc> segments = segmentRepository.findByPostId(postId);
+            return ResponseEntity.ok(segments);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("조회 실패 "+ e.getMessage());
+        }    
+    }
+       
 }

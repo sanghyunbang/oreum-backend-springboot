@@ -53,14 +53,15 @@ public class postController {
         // DB 저장하기 1 (게시글 공통 테이블)
         pd.insertpost(postDTO);
 
-        Integer generatedCurationId = null; // 큐레이션인 경우 생성
+        // Integer generatedCurationId = null; // 큐레이션인 경우 생성
 
         // DB 저장하기 2 (큐레이션 여부 따져서 큐레이션 저장)
-        if("curation".equals(postDTO.getType())){
-            pd.insertCurationDetail(postDTO);
-            generatedCurationId = postDTO.getCurationId();
-
-        } else if ("meeting".equals(postDTO.getType())) {
+        // if("curation".equals(postDTO.getType())){
+        //     pd.insertCurationDetail(postDTO);
+        //     // generatedCurationId = postDTO.getCurationId();
+        // } else 
+        
+        if ("meeting".equals(postDTO.getType())) {
             pd.insertMeetingDetail(postDTO);
         }
         // S3에 업로드 하고 URL 받아서 저장
@@ -78,10 +79,10 @@ public class postController {
         response.put("message", "게시글 등록 완료");
         response.put("postId", postDTO.getPostId());
 
-        if (generatedCurationId != null) {
-            System.out.println(" 생성된 curationId: " + generatedCurationId);
-            response.put("curationId", generatedCurationId);
-        }
+        // if (generatedCurationId != null) {
+        //     System.out.println(" 생성된 curationId: " + generatedCurationId);
+        //     response.put("curationId", generatedCurationId);
+        // }
 
         return ResponseEntity.ok(response);
     }
