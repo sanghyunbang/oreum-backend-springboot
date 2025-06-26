@@ -78,7 +78,7 @@ public class AppCustomSuccessHandler implements AuthenticationSuccessHandler {
         // 만약 리다이렉트가 필요하다면 Flutter 앱의 로그인 성공 후 라우팅 로직을 참고하여 설정해야 합니다.
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
-        response.getWriter().write("{\"message\": \"Login successful\", \"username\": \"" + username + "\", \"nickname\": \"" + nickname + "\", \"role\": \"" + role + "\"}");
+        response.getWriter().write("{\"message\": \"Login successful\", \"userId\": " + userId + ", \"username\": \"" + username + "\", \"nickname\": \"" + nickname + "\", \"role\": \"" + role + "\"}");
         // response.sendRedirect("http://10.0.2.2:3000/main"); // 만약 리다이렉트가 필요하다면 이 주석을 해제하고 경로를 지정 (Flutter 앱이 웹인 경우)
     }
 
