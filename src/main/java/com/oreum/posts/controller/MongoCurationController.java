@@ -54,7 +54,7 @@ public class MongoCurationController {
             for (CurationSegmentDoc segment: segments) {
                 System.out.println("[4] 파싱된 segment 개수: " + segments.size());
 
-                List<String> mediaUrls = new ArrayList<>();
+                List<String> media = new ArrayList<>();
 
                 for (int i = 0; ; i++) {
                     String mediaKey = "media-" + segment.getSegmentKey() + "-" + i;
@@ -63,12 +63,12 @@ public class MongoCurationController {
 
                     System.out.println("[6] 업로드할 파일: " + mediaKey + ", 이름: " + file.getOriginalFilename());
                     String url = s3Service.uploadFile(file);
-                    mediaUrls.add(url);
+                    media.add(url);
                 }
 
                 // segment.setPostId(Integer.parseInt(curationId));
                 segment.setPostId(Integer.parseInt(postIdstr));
-                segment.setMediaUrls(mediaUrls);
+                segment.setMedia(media);
             }
             
             // MongoDB 저장

@@ -15,6 +15,6 @@ public class CurationSegmentDoc {
     private String caution;
     private List<String> facility; 
     private Object geometry;// GeoJSON 형태
-    private List<String> mediaUrls;// S3에 저장된 URL
+    private List<String> media;// S3에 저장된 URL
     private Integer postId;
 }
