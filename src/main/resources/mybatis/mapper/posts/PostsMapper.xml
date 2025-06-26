@@ -15,7 +15,7 @@
   </insert>
 
   <!-- curation_details 테이블에 저장 -->
-  <insert id="insertCurationDetail" 
+  <!-- <insert id="insertCurationDetail" 
           parameterType="com.oreum.posts.dto.PostsDTO"
           useGeneratedKeys="true"
           keyProperty = "curationId"
@@ -25,7 +25,7 @@
     ) VALUES (
       #{postId}, #{mountainName}, #{isUpward}
     );
-  </insert>
+  </insert> -->
   
   <insert id="insertMeetingDetail" parameterType="com.oreum.posts.dto.PostsDTO">
     INSERT INTO meeting_details (

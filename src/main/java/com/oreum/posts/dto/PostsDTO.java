@@ -16,7 +16,7 @@ public class PostsDTO {
     private String title;           // 제목
     private String content;         // 본문 내용
 
-    private String mountainName;    // [큐레이션 관련 추가]
+    // private String mountainName;    // [큐레이션 관련 추가]
     private String route;
     private String caution;
     private String nearbyAttraction;
@@ -34,6 +34,6 @@ public class PostsDTO {
     private List<MediaDTO> mediaList; // S3 업로드 결과 저장용 필드
     private List<CommentDTO> comments;
 
-    private Integer curationId; // 큐레이션 글 작성 관련  
-    private boolean isUpward; // 큐레이션 글 관련
+    // private Integer curationId; // 큐레이션 글 작성 관련  
+    // private boolean isUpward; // 큐레이션 글 관련
 }
