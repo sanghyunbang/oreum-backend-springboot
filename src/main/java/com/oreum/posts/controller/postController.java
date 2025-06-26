@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -85,6 +86,8 @@ public class postController {
         return ResponseEntity.ok(response);
     }
     
+    
+    
     @GetMapping("/list")
     public ResponseEntity<?> getAllPosts() {
     	System.out.println("		게시물 리스트 불러오기");
@@ -110,6 +113,36 @@ public class postController {
             return ResponseEntity.internalServerError().body("게시글 목록 불러오기 실패");
         }
     }
+    
+    @PutMapping("/{postId}")
+    public ResponseEntity<?> updatePost(@PathVariable("postId") String postId,
+                                        @RequestBody PostsDTO updatedPost) {
+    	System.out.println("                           게시글 수정 진입 ID :" + postId);
+    	int postid = Integer.parseInt(postId);
+        try {
+            // 게시글 존재 여부 확인
+            PostsDTO existingPost = pd.getPostById(postid);
+                        
+            if (existingPost == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글을 찾을 수 없습니다.");
+            }
+
+            // 수정 권한 확인 (작성자만 가능)
+            if (existingPost.getUserId() != updatedPost.getUserId()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정 권한이 없습니다.");
+            }
+
+	        // 수정 처리
+	        updatedPost.setPostId(postid); // ID를 다시 설정해줌
+	        pd.updatePost(updatedPost);
+	
+	        return ResponseEntity.ok("게시글이 성공적으로 수정되었습니다.");
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시글 수정 실패");
+	    }
+	}
+            
     
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPostDetail(@PathVariable("postId") String postIdstr) {
@@ -331,4 +364,73 @@ public class postController {
 
     // }
     
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> deletePost(@PathVariable("postId") String postId) {
+        System.out.println("                     게시글 삭제 요청 ID: " + postId);
+        int postid = Integer.parseInt(postId);
+        try {
+            PostsDTO existingPost = pd.getPostById(postid);
+            if (existingPost == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("게시글이 존재하지 않습니다.");
+            }
+            
+            pd.deletePost(postid); // DAO에 삭제 처리 위임
+            return ResponseEntity.ok("게시글이 삭제되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시글 삭제 실패");
+        }
+    }
+    @GetMapping("/board/{boardId}")
+    public ResponseEntity<?> getPostsByBoardId(@PathVariable("boardId") int boardId) {
+        System.out.println("	특정 커뮤니티의 게시글 조회 요청 : boardId = " + boardId);
+        try {
+            List<PostsDTO> posts = pd.getPostsByBoardId(boardId);
+
+            for (PostsDTO post : posts) {
+                int postId = post.getPostId();
+                int count = pd.countComments(postId);
+                post.setCommentCount(count);
+                post.setComments(pd.getCommentsByPostId(postId));
+                post.setMediaList(pd.getPostMedia(postId));
+            }
+
+            return ResponseEntity.ok(posts);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("게시글 조회 실패");
+        }
+    }
+    
+    @PutMapping("/comments/{commentId}")
+    public ResponseEntity<?> updateComment(
+            @PathVariable("commentId") String commentId,
+            @RequestBody CommentDTO updatedComment) {
+        System.out.println("                                  댓글 수정 요청 진입 ID: " + commentId);
+        int commentid = Integer.parseInt(commentId);
+        try {
+            updatedComment.setCommentId(commentid);
+            updatedComment.setUpdatedAt(LocalDateTime.now());
+
+            pd.updateComment(updatedComment);
+
+            return ResponseEntity.ok("댓글이 성공적으로 수정되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 수정 실패");
+        }
+    }
+    @DeleteMapping("/comments/{commentId}")
+    public ResponseEntity<?> deleteComment(@PathVariable("commentId") String commentId) {
+        System.out.println("                                            댓글 삭제 요청 진입 ID: " + commentId);
+        int commentid = Integer.parseInt(commentId);
+        try {
+            pd.deleteComment(commentid);
+            return ResponseEntity.ok("댓글이 삭제되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("댓글 삭제 실패");
+        }
+    }
+
 }
