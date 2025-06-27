@@ -39,6 +39,17 @@
     (#{title}, #{description}, #{creatorId}, #{thumbnailUrl}, #{isPrivate}, #{createdAt}, #{updatedAt});
 </insert>
 
+<insert id="insertFeed">
+  INSERT INTO feedname (userId, name)
+  VALUES (#{userId}, #{feedname});
+</insert>
+<insert id="insertFeedBoard">
+  INSERT INTO myfeed (feedId, userId, boardId)
+  VALUES (#{feedId}, #{userId}, #{boardId});
+</insert>
+<select id="getFeedNameById" resultType="Integer">
+select feedId from feedname where name = #{feedname}
+</select>
 
-   
+
 </mapper>

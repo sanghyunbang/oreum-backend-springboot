@@ -14,6 +14,7 @@ import com.oreum.auth.dto.CustomOAuth2User;
 import com.oreum.auth.mapper.UserDao;
 import com.oreum.community.dto.communityDTO;
 import com.oreum.community.mapper.communityMapper;
+import com.oreum.posts.dto.MyFeedDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -79,4 +80,41 @@ public class communityController {
         List<communityDTO> list = _comm.getAllCommunities();
         return ResponseEntity.ok(list);
     }
+    
+    @PostMapping("/createfeed")
+    public ResponseEntity<?> createCustomFeed(@RequestBody MyFeedDTO request, Authentication auth) {
+    	System.out.println("                                 커스텀피드 생성 유저 정보 : " + auth);
+        if (auth == null || !auth.isAuthenticated()) {
+        	System.out.println("                 로그인 인증 X");
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        if (!(auth.getPrincipal() instanceof CustomOAuth2User user)) {
+            return ResponseEntity.status(400).body("잘못된 사용자 정보입니다.");
+        }
+        
+        String feedname = request.getFeedname();
+        int userId = _um.selectUserIdByEmail(user.getUserName());
+        System.out.println("                                 피드이름 : " + feedname + 
+        					"\n                                 유저id : " + userId);
+        request.setUserId(userId);
+        _comm.insertFeed(userId, feedname);
+        
+        int feedId = _comm.getFeedNameById(feedname);
+        System.out.println("                                 피드 Id 값 : " + feedId);
+        
+        List<Integer> boardIds = request.getBoardIdList();
+        System.out.println("                                 보드 배열 : "+boardIds);
+        
+        if (boardIds != null && !boardIds.isEmpty()) {
+            for (int boardId : boardIds) {
+                _comm.insertFeedBoard(feedId, userId, boardId);
+            }
+        } else {
+            return ResponseEntity.badRequest().body("커뮤니티 선택이 필요합니다.");
+        }
+
+        return ResponseEntity.ok("맞춤 피드가 성공적으로 생성되었습니다.");
+    }
+
 }
