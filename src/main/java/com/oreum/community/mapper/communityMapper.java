@@ -20,4 +20,5 @@ public interface communityMapper {
     					 @Param("userId") int userId, 
     					 @Param("boardId") int boardId 
     					 );
+    List<MyFeedDTO> getFeedsByUserId(@Param("userId") int userId);
 }

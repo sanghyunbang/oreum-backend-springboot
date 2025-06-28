@@ -116,5 +116,18 @@ public class communityController {
 
         return ResponseEntity.ok("맞춤 피드가 성공적으로 생성되었습니다.");
     }
+    
+    @PostMapping("/myfeeds")
+    public ResponseEntity<?> getMyFeeds(Authentication auth){
+    	System.out.println("                             피드목록 불러오기");
+    	if (!(auth.getPrincipal() instanceof CustomOAuth2User user)) {
+            return ResponseEntity.status(400).body("잘못된 사용자 정보입니다.");
+        }
+    	String email = user.getUserName();
+    	int userId = _um.selectUserIdByEmail(email);
+    	
+    	List<MyFeedDTO> myFeeds = _comm.getFeedsByUserId(userId);
+    	return ResponseEntity.ok(myFeeds);    	
+    }
 
 }

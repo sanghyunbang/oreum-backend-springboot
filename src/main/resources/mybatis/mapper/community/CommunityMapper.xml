@@ -50,6 +50,12 @@
 <select id="getFeedNameById" resultType="Integer">
 select feedId from feedname where name = #{feedname}
 </select>
-
+<select id="getFeedsByUserId" parameterType="int" resultType="com.oreum.posts.dto.MyFeedDTO">
+  SELECT
+    feedId AS id,
+    name AS feedname
+  FROM feedname
+  WHERE userId = #{userId}
+</select>
 
 </mapper>
