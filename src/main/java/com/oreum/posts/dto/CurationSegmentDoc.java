@@ -13,6 +13,7 @@ public class CurationSegmentDoc {
     private String pointerName;
     private String difficulty;
     private String caution;
+    private String description;
     private List<String> facility; 
     private Object geometry;// GeoJSON 형태
     private List<String> media;// S3에 저장된 URL
