@@ -5,8 +5,10 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.oreum.community.dto.FeednameDTO;
 import com.oreum.community.dto.communityDTO;
 import com.oreum.posts.dto.MyFeedDTO;
+import com.oreum.posts.dto.PostsDTO;
 
 @Mapper
 public interface communityMapper {
@@ -21,4 +23,7 @@ public interface communityMapper {
     					 @Param("boardId") int boardId 
     					 );
     List<MyFeedDTO> getFeedsByUserId(@Param("userId") int userId);
+    int getFeedIdByuserId(@Param("feedname") String feedname);
+    List<MyFeedDTO> getBoardIdsByuserId(@Param("userId") int userId);
+    List<PostsDTO> getBoardIdByFindposts(@Param("boardId") int BoardId);
 }

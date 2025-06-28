@@ -1,6 +1,7 @@
 package com.oreum.community.controller;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -12,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.oreum.auth.dto.CustomOAuth2User;
 import com.oreum.auth.mapper.UserDao;
+import com.oreum.community.dto.FeednameDTO;
 import com.oreum.community.dto.communityDTO;
 import com.oreum.community.mapper.communityMapper;
 import com.oreum.posts.dto.MyFeedDTO;
+import com.oreum.posts.dto.PostsDTO;
 
 import lombok.RequiredArgsConstructor;
 
@@ -127,7 +130,22 @@ public class communityController {
     	int userId = _um.selectUserIdByEmail(email);
     	
     	List<MyFeedDTO> myFeeds = _comm.getFeedsByUserId(userId);
+    	System.out.println("\n                  마이피드 리스트의 값 : "+myFeeds +"\n");
     	return ResponseEntity.ok(myFeeds);    	
+    }
+    @GetMapping("/feeds/{feedname}")
+    public ResponseEntity<?> getFeedName(@PathVariable("feedname") String feedname) {
+        System.out.println("\n         	피드 호출 들어옴    \n");
+        int userId = _comm.getFeedIdByuserId(feedname);
+        List<MyFeedDTO> boards = _comm.getBoardIdsByuserId(userId);
+        
+        List<PostsDTO> allPosts = new ArrayList<>();
+        for (MyFeedDTO board : boards) {
+            int boardId = board.getBoardId();
+            List<PostsDTO> posts = _comm.getBoardIdByFindposts(boardId);
+            allPosts.addAll(posts);
+        }
+        return ResponseEntity.ok(allPosts);
     }
 
 }
