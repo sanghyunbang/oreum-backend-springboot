@@ -62,6 +62,58 @@
   ORDER BY p.created_at DESC
 </select>
 
+
+<!-- 검색관련 세부 [특정 서브 커뮤 내에서 검색] -->
+
+<!-- 쿼리있는 경우 / 일반글(general)만 -->
+<select id="searchGeneralPostsByBoardIdAndQuery" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE 
+        board_id = #{boardId} 
+        AND (title LIKE CONCAT('%', #{query}, '%')
+            OR IFNULL(content, '') LIKE CONCAT('%', #{query}, '%'))
+        AND type = 'general'
+    ORDER BY created_at DESC
+</select>
+
+
+<!-- 쿼리없는 경우 / 일반글(general)만 -->
+<select id="getGeneralPostsByBoardId" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE 
+        board_id = #{boardId} 
+        AND type = 'general'
+    ORDER BY created_at DESC
+</select>
+
+<!-- 몽고디비에서 가져온 아이디로 추출 -->
+
+<!-- MongoDB에서 description에 query가 포함된 세그먼트를 찾고 → 해당 postId만 MySQL에서 불러올 때 -->
+<select id="getPostsByPostIds" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE post_id IN
+    <foreach collection="postIds" item="id" open="(" separator="," close=")">
+        #{id}
+    </foreach>
+</select>
+
+<!-- 검색 쿼리가 없을 때 큐레이션 게시글을 가져오기 -->
+<select id="getCurationPostsByBoardId" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE 
+        board_id = #{boardId} 
+        AND type = 'curation'
+    ORDER BY created_at DESC
+
+</select>
+
+
+
+
 <!-- 미디어 관련 게시글 정보 가지고 오기 -->
 <select id="getPostMedia" resultType="com.oreum.posts.dto.MediaDTO" parameterType="int">
   SELECT

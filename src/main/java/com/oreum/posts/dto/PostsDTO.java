@@ -36,4 +36,7 @@ public class PostsDTO {
 
     // private Integer curationId; // 큐레이션 글 작성 관련  
     // private boolean isUpward; // 큐레이션 글 관련
+
+    // 몽고 DB 큐레이션 정보
+    private List<CurationSegmentDoc> curationSegments;
 }

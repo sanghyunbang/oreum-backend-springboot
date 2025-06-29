@@ -1,6 +1,7 @@
 package com.oreum.posts.dao;
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -85,7 +86,20 @@ public interface PostsDAO {
 	// 큐레이션 글 insert
 	void postForCuration(PostForCurationDTO postForCurationDTO);
 
-	// 큐레이션 글 insert 후에 해당 post 값 보내주기기
+	// [검색 관련] (0630)
+
+	// 검색 쿼리 있는 경우
+	List<PostsDTO> searchPostsByBoardIdAndQuery(int boardId, String query);
+	List<PostsDTO> searchGeneralPostsByBoardIdAndQuery(int boardId, String query); // 일반글 [ok]
+	List<PostsDTO> searchCurationPostsByBoardIdAndQuery(int boardId, String query);
+
+	// 검색 쿼리 없는 경우
+	// List<PostsDTO> getPostsByBoardId(int boardId);       // all --> 위에 존재 [ok]
+	List<PostsDTO> getGeneralPostsByBoardId(int boardId);   // 일반글 [ok]
+	List<PostsDTO> getCurationPostsByBoardId(int boardId);  // 큐레이션
+
+	List<PostsDTO> getPostsByPostIds(@Param("postIds") Set<Integer> postIds);
+
 
 
 }

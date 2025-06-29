@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,9 +24,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.oreum.external.S3.S3Service;
+import com.oreum.posts.dao.CurationSegmentRepository;
 import com.oreum.posts.dao.PostsDAO;
 import com.oreum.posts.dto.BookmarkDTO;
 import com.oreum.posts.dto.CommentDTO;
+import com.oreum.posts.dto.CurationSegmentDoc;
 import com.oreum.posts.dto.PostForCurationDTO;
 import com.oreum.posts.dto.PostLikeDTO;
 import com.oreum.posts.dto.PostsDTO;
@@ -39,6 +43,10 @@ public class postController {
 	@Autowired PostsDAO pd;
 
     private final S3Service s3Service;
+
+    @Autowired
+    private CurationSegmentRepository mongoRepo; // mongoDB관련
+
 
     @PostMapping(value = "/insert", consumes = "multipart/form-data")
     public ResponseEntity<?> insertPost(@RequestPart("post") PostsDTO postDTO,
@@ -382,26 +390,167 @@ public class postController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("게시글 삭제 실패");
         }
     }
-    @GetMapping("/board/{boardId}")
-    public ResponseEntity<?> getPostsByBoardId(@PathVariable("boardId") int boardId) {
-        System.out.println("	특정 커뮤니티의 게시글 조회 요청 : boardId = " + boardId);
-        try {
-            List<PostsDTO> posts = pd.getPostsByBoardId(boardId);
 
+    // @GetMapping("/board/{boardId}")
+    // public ResponseEntity<?> getPostsByBoardId(@PathVariable("boardId") int boardId) {
+    //     System.out.println("	특정 커뮤니티의 게시글 조회 요청 : boardId = " + boardId);
+    //     try {
+    //         List<PostsDTO> posts = pd.getPostsByBoardId(boardId);
+
+    //         for (PostsDTO post : posts) {
+    //             int postId = post.getPostId();
+    //             int count = pd.countComments(postId);
+    //             post.setCommentCount(count);
+    //             post.setComments(pd.getCommentsByPostId(postId));
+    //             post.setMediaList(pd.getPostMedia(postId));
+    //         }
+
+    //         return ResponseEntity.ok(posts);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         return ResponseEntity.internalServerError().body("게시글 조회 실패");
+    //     }
+    // }
+
+    // @GetMapping("/board/{boardId}/{mode}")
+    // public ResponseEntity<?> getPostsByBoardIdModeAndQuery(
+    //     @PathVariable("boardId") int boardId,
+    //     @PathVariable("mode") String mode,
+    //     @RequestParam(value = "query", required = false) String query
+    // ) {
+    //     System.out.println("요청: boardId = " + boardId + ", mode = " + mode + ", query = " + query);
+    
+    //     try {
+    //         List<PostsDTO> posts;
+    
+    //         if (query != null && !query.trim().isEmpty()) {
+    //             // 검색 쿼리가 있을 때
+    //             switch (mode.toLowerCase()) {
+    //                 case "all":
+    //                     posts = pd.searchPostsByBoardIdAndQuery(boardId, query);
+    //                     break;
+    //                 case "general":
+    //                     posts = pd.searchGeneralPostsByBoardIdAndQuery(boardId, query);
+    //                     break;
+    //                 case "curation":
+    //                     posts = pd.searchCurationPostsByBoardIdAndQuery(boardId, query);
+    //                     break;
+    //                 default:
+    //                     return ResponseEntity.badRequest().body("유효하지 않은 mode 값입니다.");
+    //             }
+    //         } else {
+    //             // 검색 쿼리가 없을 때
+    //             switch (mode.toLowerCase()) {
+    //                 case "all":
+    //                     posts = pd.getPostsByBoardId(boardId);
+    //                     break;
+    //                 case "general":
+    //                     posts = pd.getGeneralPostsByBoardId(boardId);
+    //                     break;
+    //                 case "curation":
+    //                     posts = pd.getCurationPostsByBoardId(boardId);
+    //                     break;
+    //                 default:
+    //                     return ResponseEntity.badRequest().body("유효하지 않은 mode 값입니다.");
+    //             }
+    //         }
+    
+    //         for (PostsDTO post : posts) {
+    //             int postId = post.getPostId();
+    //             post.setCommentCount(pd.countComments(postId));
+    //             post.setComments(pd.getCommentsByPostId(postId));
+    //             post.setMediaList(pd.getPostMedia(postId));
+    //         }
+    
+    //         return ResponseEntity.ok(posts);
+    
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         return ResponseEntity.internalServerError().body("게시글 조회 실패");
+    //     }
+    // }
+    
+    @GetMapping("/board/{boardId}/{mode}")
+    public ResponseEntity<?> getPostsByBoardIdModeAndQuery(
+        @PathVariable("boardId") int boardId,
+        @PathVariable("mode") String mode,
+        @RequestParam(value = "query", required = false) String query
+    ) {
+        System.out.printf("요청: boardId = %d, mode = %s, query = %s%n", boardId, mode, query);
+
+        try {
+            List<PostsDTO> posts;
+
+            // mode 정규화
+            String modeNormalized = mode.toLowerCase();
+
+            // 1. mode 유효성 체크
+            if (!List.of("all", "general", "curation").contains(modeNormalized)) {
+                return ResponseEntity.badRequest().body("유효하지 않은 mode 값입니다.");
+            }
+
+            // 2. 게시글 조회
+            posts = fetchPosts(boardId, modeNormalized, query);
+
+            // 3. 공통 후처리
             for (PostsDTO post : posts) {
                 int postId = post.getPostId();
-                int count = pd.countComments(postId);
-                post.setCommentCount(count);
+                post.setCommentCount(pd.countComments(postId));
                 post.setComments(pd.getCommentsByPostId(postId));
                 post.setMediaList(pd.getPostMedia(postId));
+
+                // 추가: 큐레이션이면 MongoDB에서 세그먼트 붙이기
+                if ("curation".equals(modeNormalized)) {
+                    List<CurationSegmentDoc> segments = mongoRepo.findByPostId(postId);
+                    post.setCurationSegments(segments);
+                }
             }
 
             return ResponseEntity.ok(posts);
+
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("게시글 조회 실패");
         }
     }
+
+    private List<PostsDTO> fetchPosts(int boardId, String mode, String query) {
+        boolean isSearch = query != null && !query.trim().isEmpty();
+
+        if ("curation".equalsIgnoreCase(mode)) {
+            if (isSearch) {
+                // 1. MongoDB에서 query 포함된 큐레이션 세그먼트 검색
+                List<CurationSegmentDoc> matchedSegments = mongoRepo.findByBoardIdAndDescriptionRegex(boardId, query);
+
+                // 2. 유니크 postId 추출
+                Set<Integer> postIds = matchedSegments.stream()
+                    .map(CurationSegmentDoc::getPostId)
+                    .collect(Collectors.toSet());
+
+                // 3. MySQL에서 해당 postId의 메타 정보만 가져오기
+                return postIds.isEmpty() ? List.of() : pd.getPostsByPostIds(postIds);
+            } else {
+                // 검색 없을 때는 기존 방식
+                return pd.getCurationPostsByBoardId(boardId);
+            }
+        }
+
+        // 일반, all은 기존 처리 방식
+        return isSearch
+            ? switch (mode) {
+                case "all" -> pd.searchPostsByBoardIdAndQuery(boardId, query);
+                case "general" -> pd.searchGeneralPostsByBoardIdAndQuery(boardId, query);
+                default -> throw new IllegalArgumentException("잘못된 mode");
+            }
+            : switch (mode) {
+                case "all" -> pd.getPostsByBoardId(boardId);
+                case "general" -> pd.getGeneralPostsByBoardId(boardId);
+                default -> throw new IllegalArgumentException("잘못된 mode");
+            };
+    }
+
+
+    
     
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<?> updateComment(

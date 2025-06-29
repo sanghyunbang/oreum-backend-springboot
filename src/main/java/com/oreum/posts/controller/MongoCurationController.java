@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oreum.external.S3.S3Service;
 import com.oreum.posts.dao.CurationSegmentRepository;
 import com.oreum.posts.dto.CurationSegmentDoc;
+import com.oreum.posts.service.CurationSegmentService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,9 @@ public class MongoCurationController {
     private final CurationSegmentRepository segmentRepository;
     private final S3Service s3Service;
     private final ObjectMapper objectMapper;
+
+    // 몽고 검색 관련 서비스
+    private final CurationSegmentService service;
     
     @PostMapping(value = "/curationSegments", consumes = {"multipart/form-data"})
     public ResponseEntity<?> uploadsCurationSegments(
@@ -93,5 +97,11 @@ public class MongoCurationController {
             return ResponseEntity.internalServerError().body("조회 실패 "+ e.getMessage());
         }    
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CurationSegmentDoc>> search(@RequestParam String keyword) {
+        return ResponseEntity.ok(service.searchByKeyword(keyword));
+    }
+    
        
 }

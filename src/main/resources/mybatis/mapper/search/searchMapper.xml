@@ -13,7 +13,7 @@
             board_id = #{boardId} 
             AND (title LIKE CONCAT('%', #{query}, '%')
                 OR IFNULL(content, '') LIKE CONCAT('%', #{query}, '%'))
-            AND type != 'curation'
+            AND type = 'general'
         ORDER BY created_at DESC
     </select>
 
