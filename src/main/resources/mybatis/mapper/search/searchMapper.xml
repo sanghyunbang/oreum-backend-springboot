@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oreum.search.DAO.MySqlPostMapper">
+
+    <!-- 특정 서브 커뮤 내에서 검색 -->
+    <select id="searchPosts" resultType="com.oreum.posts.dto.PostsDTO">
+        SELECT *
+        FROM posts
+        WHERE 
+            board_id = #{boardId} 
+            AND (title LIKE CONCAT('%', #{query}, '%')
+                OR IFNULL(content, '') LIKE CONCAT('%', #{query}, '%'))
+            AND type != 'curation'
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>
