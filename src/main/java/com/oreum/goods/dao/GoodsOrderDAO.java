@@ -3,6 +3,7 @@ package com.oreum.goods.dao;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -27,6 +28,9 @@ public interface GoodsOrderDAO {
 	void updateToDelivered(LocalDateTime minusMinutes);
 
 	void cancelOrder(@Param("id") int id);
+	
+	@Delete("DELETE FROM orders WHERE order_id=#{id}")
+	void deleteOrder(@Param("id") int id);
 
 	void updateReview(@Param("orderItemId") int order_item_id);
 

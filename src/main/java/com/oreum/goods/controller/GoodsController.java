@@ -210,6 +210,11 @@ public class GoodsController {
 		goDAO.cancelOrder(id);
 		return "1";
 	}
+	@PostMapping("/deleteOrder")
+	public void deleteOrder(@RequestBody Map<String,String> req) {
+		int id = Integer.parseInt(req.get("order_id"));
+		goDAO.deleteOrder(id);
+	}
 	
 	@Scheduled(fixedRate = 600000) // 10분마다 실행
     public void updateOrderStatusByTime() {
