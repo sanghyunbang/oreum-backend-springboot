@@ -10,5 +10,4 @@ public class OreumBackendSpringbootApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(OreumBackendSpringbootApplication.class, args);
 	}
-
 }

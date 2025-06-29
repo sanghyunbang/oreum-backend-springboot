@@ -66,7 +66,7 @@
 <!-- 검색관련 세부 [특정 서브 커뮤 내에서 검색] -->
 
 <!-- 쿼리있는 경우 / 일반글(general)만 -->
-<select id="searchGeneralPostsByBoardIdAndQuery" resultType="com.oreum.posts.dto.PostsDTO">
+<select id="searchPostsByBoardIdAndQuery" resultType="com.oreum.posts.dto.PostsDTO">
     SELECT *
     FROM posts
     WHERE 
@@ -76,6 +76,33 @@
         AND type = 'general'
     ORDER BY created_at DESC
 </select>
+
+<!-- 위랑 똑같음 -->
+<select id="searchGeneralPostsByBoardIdAndQuery" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE board_id = #{boardId}
+      AND type = 'general'
+      AND (
+          title LIKE CONCAT('%', #{query}, '%')
+          OR content LIKE CONCAT('%', #{query}, '%')
+      )
+    ORDER BY created_at DESC
+</select>
+
+<!-- 몽고디비 쿼리 거친 후에 -->
+
+<select id="getFilteredPostsByBoardIdAndPostIds" resultType="com.oreum.posts.dto.PostsDTO">
+    SELECT *
+    FROM posts
+    WHERE board_id = #{boardId}
+      AND post_id IN
+      <foreach collection="postIds" item="id" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+</select>
+
+
 
 
 <!-- 쿼리없는 경우 / 일반글(general)만 -->

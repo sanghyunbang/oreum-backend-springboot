@@ -17,7 +17,7 @@ public interface CurationSegmentRepository extends MongoRepository<CurationSegme
     "] }")
     List<CurationSegmentDoc> searchByKeyword(String keyword);
 
-    @Query("{ 'boardId': ?0, 'description': { $regex: ?1, $options: 'i' } }")
-    List<CurationSegmentDoc> findByBoardIdAndDescriptionRegex(int boardId, String query);
+    @Query("{ 'description': { $regex: ?0, $options: 'i' } }")
+    List<CurationSegmentDoc> findByDescriptionRegex(String query);
 
 }

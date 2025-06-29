@@ -516,26 +516,28 @@ public class postController {
 
     private List<PostsDTO> fetchPosts(int boardId, String mode, String query) {
         boolean isSearch = query != null && !query.trim().isEmpty();
-
+    
         if ("curation".equalsIgnoreCase(mode)) {
             if (isSearch) {
-                // 1. MongoDB에서 query 포함된 큐레이션 세그먼트 검색
-                List<CurationSegmentDoc> matchedSegments = mongoRepo.findByBoardIdAndDescriptionRegex(boardId, query);
-
+                // 1. MongoDB에서 description에 query 포함된 도큐먼트 검색
+                List<CurationSegmentDoc> matchedSegments = mongoRepo.findByDescriptionRegex(query);
+    
                 // 2. 유니크 postId 추출
                 Set<Integer> postIds = matchedSegments.stream()
                     .map(CurationSegmentDoc::getPostId)
                     .collect(Collectors.toSet());
-
-                // 3. MySQL에서 해당 postId의 메타 정보만 가져오기
-                return postIds.isEmpty() ? List.of() : pd.getPostsByPostIds(postIds);
+    
+                // 3. MySQL에서 boardId가 일치하고 postId가 포함된 글만 필터링
+                return postIds.isEmpty() 
+                    ? List.of() 
+                    : pd.getFilteredPostsByBoardIdAndPostIds(boardId, postIds);
             } else {
-                // 검색 없을 때는 기존 방식
+                // 검색 없을 때는 boardId 기반으로 MySQL에서 조회
                 return pd.getCurationPostsByBoardId(boardId);
             }
         }
-
-        // 일반, all은 기존 처리 방식
+    
+        // 일반글 or 전체글 처리
         return isSearch
             ? switch (mode) {
                 case "all" -> pd.searchPostsByBoardIdAndQuery(boardId, query);
@@ -548,6 +550,7 @@ public class postController {
                 default -> throw new IllegalArgumentException("잘못된 mode");
             };
     }
+    
 
 
     

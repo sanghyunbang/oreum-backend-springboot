@@ -89,16 +89,21 @@ public interface PostsDAO {
 	// [검색 관련] (0630)
 
 	// 검색 쿼리 있는 경우
-	List<PostsDTO> searchPostsByBoardIdAndQuery(int boardId, String query);
-	List<PostsDTO> searchGeneralPostsByBoardIdAndQuery(int boardId, String query); // 일반글 [ok]
-	List<PostsDTO> searchCurationPostsByBoardIdAndQuery(int boardId, String query);
+	List<PostsDTO> searchPostsByBoardIdAndQuery(@Param("boardId") int boardId, @Param("query") String query);
+	List<PostsDTO> searchGeneralPostsByBoardIdAndQuery(@Param("boardId") int boardId, @Param("query") String query); // 일반글 [ok]
+	List<PostsDTO> searchCurationPostsByBoardIdAndQuery(@Param("boardId") int boardId, @Param("query") String query);
 
 	// 검색 쿼리 없는 경우
 	// List<PostsDTO> getPostsByBoardId(int boardId);       // all --> 위에 존재 [ok]
-	List<PostsDTO> getGeneralPostsByBoardId(int boardId);   // 일반글 [ok]
-	List<PostsDTO> getCurationPostsByBoardId(int boardId);  // 큐레이션
+	List<PostsDTO> getGeneralPostsByBoardId(@Param("boardId") int boardId);   // 일반글 [ok]
+	List<PostsDTO> getCurationPostsByBoardId(@Param("boardId") int boardId);  // 큐레이션
 
 	List<PostsDTO> getPostsByPostIds(@Param("postIds") Set<Integer> postIds);
+
+	// 몽고 디비 쿼리 거침-> 해당 posts 가져오기
+
+	List<PostsDTO> getFilteredPostsByBoardIdAndPostIds(@Param("boardId") int boardId, @Param("postIds") Set<Integer> postIds);
+
 
 
 
