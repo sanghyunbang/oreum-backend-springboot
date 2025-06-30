@@ -16,6 +16,9 @@
 	    <result property="total" column="total"/>
 	    <result property="status" column="status"/>
 	    <result property="ordered_at" column="ordered_at"/>
+	    <result property="status_updated_at" column="status_updated_at"/> <!-- 추가 -->
+	    <result property="imp_uid" column="imp_uid"/> <!-- 추가 -->
+	    <result property="merchant_uid" column="merchant_uid"/> <!-- 추가 -->
 	    
 	    <collection property="items" ofType="com.oreum.goods.dto.OrderItemDTO">
 	        <id property="order_item_id" column="order_item_id"/>
@@ -69,4 +72,6 @@
 	<update id="updatePoints">
 		UPDATE users SET points = points-#{point}
 	</update>
+	
+
 </mapper>

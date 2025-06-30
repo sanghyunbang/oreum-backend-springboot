@@ -23,4 +23,8 @@ public class GoodsOrderDTO {
 
 	    // 주문 상품들
 	    private List<OrderItemDTO> items;
+	    
+	    // 결제
+	    private String imp_uid; // 아임포트 고유 결제 번호 추가
+	    private String merchant_uid; // 아임포트 상점 주문 번호 추가
 }

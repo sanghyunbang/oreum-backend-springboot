@@ -162,11 +162,17 @@ public class GoodsController {
 	    gcDAO.selRemoveCart(cartIds); // 이렇게 하면 MyBatis가 list로 인식함
 	    return "1";
 	}
-	@PostMapping("/deleteCart")
-	public String doDeleteCart(@RequestBody Map<String, List<Integer>> req) {
-		List<Integer> cartIds = req.get("id");
-		gcDAO.selDeleteCart(cartIds);
-		return "1";
+	@PostMapping("/deleteCart") // ApiService에서 호출하는 엔드포인트와 일치하는지 확인
+	public ResponseEntity<String> doDeleteCart(@RequestBody Map<String, List<Integer>> payload) {
+	    List<Integer> goodsOptionIds = payload.get("goodsOptionIds");
+
+	    if (goodsOptionIds == null || goodsOptionIds.isEmpty()) {
+	        // 리스트가 null이거나 비어있으면 에러 응답 또는 성공 응답 (백엔드 정책에 따라)
+	        return ResponseEntity.badRequest().body("삭제할 상품 옵션 ID가 없습니다.");
+	    }
+
+	   gcDAO.selDeleteCart(goodsOptionIds); // goodsCartDAO는 @Autowired로 주입받았다고 가정
+	    return ResponseEntity.ok("장바구니 상품이 삭제되었습니다.");
 	}
 	
 	
@@ -288,11 +294,25 @@ public class GoodsController {
     
     //포인트
     @PostMapping("/getUserPoints")
-    public String doGetUserPoints(@RequestBody Map<String, String> req) {
-    	int userId = Integer.parseInt(req.get("userId"));
-    	return goDAO.getUserPoints(userId);
+    public ResponseEntity<String> getUserPoints(@RequestBody Map<String, String> payload) {
+        String userIdString = payload.get("id");
+        if (userIdString == null || userIdString.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("User ID is required.");
+        }
+        int userId = Integer.parseInt(userIdString);
+        String pointsString = goDAO.getUserPoints(userId);
+        if (pointsString == null) { // <-- 이 부분이 Java null을 처리
+            return ResponseEntity.ok("0");
+        } else {
+            try {
+                int points = Integer.parseInt(pointsString); // <-- 여기서 오류 발생 가능
+                return ResponseEntity.ok(String.valueOf(points));
+            } catch (NumberFormatException e) {
+                System.err.println("Cannot parse points string to integer: " + pointsString + ". Error: " + e.getMessage());
+                return ResponseEntity.ok("0");
+            }
+        }
     }
-    
     
 
 //    @PostMapping("/upload")

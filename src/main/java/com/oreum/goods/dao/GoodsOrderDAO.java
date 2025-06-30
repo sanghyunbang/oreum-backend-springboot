@@ -42,4 +42,19 @@ public interface GoodsOrderDAO {
 
 	void updatePoints(GoodsOrderDTO odto);
 	
+	// 아임포트 결제 검증을 위한 메서드 추가
+		@Select("SELECT total_price FROM orders WHERE merchant_uid = #{merchant_uid}")
+		Integer getAmountByMerchantUid(@Param("merchant_uid") String merchant_uid);
+
+		@Select("SELECT order_id FROM orders WHERE merchant_uid = #{merchant_uid}")
+		Integer getOrderIdByMerchantUid(@Param("merchant_uid") String merchant_uid);
+
+		@Update("UPDATE orders SET status = #{status}, imp_uid = #{imp_uid}, status_updated_at = NOW() WHERE merchant_uid = #{merchant_uid}")
+		void updateOrderStatusAndImpUid(@Param("merchant_uid") String merchant_uid, @Param("imp_uid") String imp_uid, @Param("status") String status);
+
+		@Update("UPDATE orders SET status = #{status}, status_updated_at = NOW() WHERE merchant_uid = #{merchant_uid}")
+		void updateOrderStatus(@Param("merchant_uid") String merchant_uid, @Param("status") String status);
+	
+
+	
 }

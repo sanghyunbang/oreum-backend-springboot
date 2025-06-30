@@ -58,10 +58,11 @@
     	#{id}
   	</foreach>
   </delete>
-  <delete id="selDeleteCart" parameterType="list">
-  	DELETE FROM cart WHERE goods_option_id IN
-  	<foreach item="id" collection="list" open="(" separator="," close=")">
-    	#{id}
-  	</foreach>
-  </delete>
+<delete id="selDeleteCart">
+    DELETE FROM cart
+    WHERE goods_option_id IN
+    <foreach item="id" collection="goodsOptionIds" open="(" separator="," close=")">
+        #{id}
+    </foreach>
+</delete>
 </mapper>

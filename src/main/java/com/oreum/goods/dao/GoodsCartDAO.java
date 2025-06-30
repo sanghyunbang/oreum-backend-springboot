@@ -20,6 +20,6 @@ public interface GoodsCartDAO {
 
 	void selRemoveCart(List<Integer> cartIds);
 
-	void selDeleteCart(List<Integer> cartIds);
+	void selDeleteCart(@Param("goodsOptionIds") List<Integer> goodsOptionIds);
 	
 }
