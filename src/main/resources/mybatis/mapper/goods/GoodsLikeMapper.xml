@@ -18,4 +18,24 @@
     FROM likes
     WHERE user_id = #{userId} AND goods_id = #{goodsId}
   </select>
+  <select id="listLiked" parameterType="int" resultType="com.oreum.goods.dto.GoodsLikedDTO">
+    SELECT
+        g.id AS goodsId,
+        g.name,
+        g.category,
+        g.brand,
+        g.price,
+        g.salePercent,
+        g.description,
+        g.img,
+        g.likes,
+        g.status,
+        g.created_at,
+        g.updated_at,
+        l.liked_at
+    FROM likes l
+    JOIN goods g ON l.goods_id = g.id
+    WHERE l.user_id = #{userId}
+    ORDER BY l.liked_at DESC
+  </select>
 </mapper>

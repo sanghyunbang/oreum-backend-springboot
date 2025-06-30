@@ -37,6 +37,7 @@ import com.oreum.goods.dao.ReviewDAO;
 import com.oreum.goods.dao.goodsDAO;
 import com.oreum.goods.dto.CartRequest;
 import com.oreum.goods.dto.GoodsCartDTO;
+import com.oreum.goods.dto.GoodsLikedDTO;
 import com.oreum.goods.dto.GoodsOrderDTO;
 import com.oreum.goods.dto.OrderItemDTO;
 import com.oreum.goods.dto.ReviewDTO;
@@ -258,6 +259,12 @@ public class GoodsController {
 	
 	
 	//좋아요
+	@PostMapping("/likedList")
+	public  List<GoodsLikedDTO> doListLiked(@RequestBody Map<String,String> req) {
+		System.out.println("유저아이디: "+req.get("userId"));
+		List<GoodsLikedDTO> glDTO = likeDAO.listLiked(Integer.parseInt(req.get("userId")));
+		return glDTO;
+	}
 	@PostMapping("/liked")
     public ResponseEntity<?> like(@RequestBody Map<String, Integer> req) {
         int userId = req.get("userId");
