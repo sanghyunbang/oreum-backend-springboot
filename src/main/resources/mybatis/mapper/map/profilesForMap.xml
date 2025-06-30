@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.oreum.map.curationProfiles.DAO.profileForMapDao">
+
+  <select id="getProfiles" resultType="com.oreum.map.curationProfiles.DTO.UserForMap">
+    SELECT
+      p.post_id AS postId,
+      u.user_id AS id,
+      u.nickname AS nickname,
+      CAST(SUBSTRING_INDEX(p.searchGeo, ',', 1) AS DECIMAL(10, 7)) AS lat,
+      CAST(SUBSTRING_INDEX(p.searchGeo, ',', -1) AS DECIMAL(10, 7)) AS lon,
+      u.profile_image AS profileUrl,
+      (6371 * acos(
+        cos(radians(#{baseLat})) * cos(radians(CAST(SUBSTRING_INDEX(p.searchGeo, ',', 1) AS DECIMAL(10, 7)))) *
+        cos(radians(CAST(SUBSTRING_INDEX(p.searchGeo, ',', -1) AS DECIMAL(10, 7))) - radians(#{baseLon})) +
+        sin(radians(#{baseLat})) * sin(radians(CAST(SUBSTRING_INDEX(p.searchGeo, ',', 1) AS DECIMAL(10, 7))))
+      )) AS distance
+    FROM posts p
+    JOIN users u ON p.user_id = u.user_id
+    WHERE p.searchGeo IS NOT NULL
+    HAVING distance &lt;= 3
+    ORDER BY distance ASC
+  </select>
+
+</mapper>

@@ -8,9 +8,9 @@
   <insert id="insertpost" parameterType="com.oreum.posts.dto.PostsDTO"
    useGeneratedKeys="true" keyProperty="postId">
     INSERT INTO posts (
-      user_id, board_id, title, content, type
+      user_id, board_id, title, content, type, searchGeo
     ) VALUES (
-      #{userId}, #{boardId}, #{title}, #{content}, #{type}
+      #{userId}, #{boardId}, #{title}, #{content}, #{type}, #{searchGeo}
     )
   </insert>
 

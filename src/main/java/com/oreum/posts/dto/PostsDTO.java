@@ -39,4 +39,7 @@ public class PostsDTO {
 
     // 몽고 DB 큐레이션 정보
     private List<CurationSegmentDoc> curationSegments;
+
+    // 대표 좌표
+    private String searchGeo;
 }
