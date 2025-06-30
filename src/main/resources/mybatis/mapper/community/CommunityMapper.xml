@@ -61,12 +61,33 @@ select feedId from feedname where name = #{feedname}
 <select id="getFeedIdByuserId" >
 select userId from feedname where name=#{feedname}
 </select>
+<select id="getfeedIdByuserId2" >
+select feedId from feedname where name=#{feedname}
+</select>
 <select id="getBoardIdsByuserId">
-select boardId from myfeed where userId = #{userId}
+select boardId from myfeed where userId = #{userId} AND feedId = #{feedId}
 </select>
 <select id="getBoardIdByFindposts">
 SELECT 
     p.post_id AS postId,
+    p.user_id AS userId,
+    u.nickname AS nickname,
+    p.board_id AS boardId,
+    p.type,
+    p.title,
+    p.content,
+    p.like_count AS likeCount,
+    p.comment_count AS commentCount,
+    p.is_deleted AS isDeleted,
+    p.created_at AS createdAt,
+    p.updated_at AS updatedAt
+  FROM posts p
+  JOIN users u ON p.user_id = u.user_id
+  where board_id = #{boardId}
+</select>
+<select id="testcall" parameterType="int" resultType="com.oreum.posts.dto.PostsDTO">
+select 
+	p.post_id AS postId,
     p.user_id AS userId,
     u.nickname AS nickname,
     p.board_id AS boardId,

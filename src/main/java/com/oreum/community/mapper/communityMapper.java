@@ -24,6 +24,10 @@ public interface communityMapper {
     					 );
     List<MyFeedDTO> getFeedsByUserId(@Param("userId") int userId);
     int getFeedIdByuserId(@Param("feedname") String feedname);
-    List<MyFeedDTO> getBoardIdsByuserId(@Param("userId") int userId);
+    List<MyFeedDTO> getBoardIdsByuserId(@Param("userId") int userId ,@Param("feedId") int feedId);
+    int getfeedIdByuserId2(@Param("feedname") String feedname);
     List<PostsDTO> getBoardIdByFindposts(@Param("boardId") int BoardId);
+    
+    //테스트용
+    List<PostsDTO> testcall(@Param("boardId") int BoarId);
 }

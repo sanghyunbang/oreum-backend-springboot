@@ -99,7 +99,7 @@ public class postController {
     
     @GetMapping("/list")
     public ResponseEntity<?> getAllPosts() {
-    	System.out.println("		게시물 리스트 불러오기");
+    	System.out.println("\n		  게시물 리스트 불러오기 \n");
         try {
             List<PostsDTO> posts = pd.getAllPosts();
             

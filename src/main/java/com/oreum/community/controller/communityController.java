@@ -2,7 +2,9 @@ package com.oreum.community.controller;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -135,15 +137,24 @@ public class communityController {
     }
     @GetMapping("/feeds/{feedname}")
     public ResponseEntity<?> getFeedName(@PathVariable("feedname") String feedname) {
-        System.out.println("\n         	피드 호출 들어옴    \n");
+        System.out.println("\n         	피드 호출 들어옴 : " + feedname +"     \n");
         int userId = _comm.getFeedIdByuserId(feedname);
-        List<MyFeedDTO> boards = _comm.getBoardIdsByuserId(userId);
+        int feedId = _comm.getfeedIdByuserId2(feedname);
+        List<MyFeedDTO> boards = _comm.getBoardIdsByuserId(userId, feedId);
+        
+        Set<Integer> seenPostIds = new HashSet<>();
         
         List<PostsDTO> allPosts = new ArrayList<>();
         for (MyFeedDTO board : boards) {
             int boardId = board.getBoardId();
+            
             List<PostsDTO> posts = _comm.getBoardIdByFindposts(boardId);
-            allPosts.addAll(posts);
+            for (PostsDTO post : posts) {
+                if (seenPostIds.add(post.getPostId())) {
+                    // postId가 처음 보는 ID면 추가됨 (add()는 true 반환)
+                    allPosts.add(post);
+                }
+            }
         }
         return ResponseEntity.ok(allPosts);
     }
