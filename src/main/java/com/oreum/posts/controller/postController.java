@@ -38,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/posts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true") //  CORS 허용
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true") // CORS 허용
 public class postController {
 	@Autowired PostsDAO pd;
 
@@ -173,6 +173,13 @@ public class postController {
 
             //미디어 추가
             post.setMediaList(pd.getPostMedia(postId));
+
+            // 큐레이션 게시글인 경우 MongoDB 데이터 통합 (상세보기에서도 필요)
+            if ("curation".equals(post.getType())) {
+                List<CurationSegmentDoc> segments = mongoRepo.findByPostId(postId);
+                post.setCurationSegments(segments);
+                // searchGeo는 PostsDTO에 이미 MySQL에서 로드되어 있을 것이므로 추가 로직 불필요
+            }
             
             return ResponseEntity.ok(post);
         } catch (Exception e) {
@@ -391,85 +398,6 @@ public class postController {
         }
     }
 
-    // @GetMapping("/board/{boardId}")
-    // public ResponseEntity<?> getPostsByBoardId(@PathVariable("boardId") int boardId) {
-    //     System.out.println("	특정 커뮤니티의 게시글 조회 요청 : boardId = " + boardId);
-    //     try {
-    //         List<PostsDTO> posts = pd.getPostsByBoardId(boardId);
-
-    //         for (PostsDTO post : posts) {
-    //             int postId = post.getPostId();
-    //             int count = pd.countComments(postId);
-    //             post.setCommentCount(count);
-    //             post.setComments(pd.getCommentsByPostId(postId));
-    //             post.setMediaList(pd.getPostMedia(postId));
-    //         }
-
-    //         return ResponseEntity.ok(posts);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.internalServerError().body("게시글 조회 실패");
-    //     }
-    // }
-
-    // @GetMapping("/board/{boardId}/{mode}")
-    // public ResponseEntity<?> getPostsByBoardIdModeAndQuery(
-    //     @PathVariable("boardId") int boardId,
-    //     @PathVariable("mode") String mode,
-    //     @RequestParam(value = "query", required = false) String query
-    // ) {
-    //     System.out.println("요청: boardId = " + boardId + ", mode = " + mode + ", query = " + query);
-    
-    //     try {
-    //         List<PostsDTO> posts;
-    
-    //         if (query != null && !query.trim().isEmpty()) {
-    //             // 검색 쿼리가 있을 때
-    //             switch (mode.toLowerCase()) {
-    //                 case "all":
-    //                     posts = pd.searchPostsByBoardIdAndQuery(boardId, query);
-    //                     break;
-    //                 case "general":
-    //                     posts = pd.searchGeneralPostsByBoardIdAndQuery(boardId, query);
-    //                     break;
-    //                 case "curation":
-    //                     posts = pd.searchCurationPostsByBoardIdAndQuery(boardId, query);
-    //                     break;
-    //                 default:
-    //                     return ResponseEntity.badRequest().body("유효하지 않은 mode 값입니다.");
-    //             }
-    //         } else {
-    //             // 검색 쿼리가 없을 때
-    //             switch (mode.toLowerCase()) {
-    //                 case "all":
-    //                     posts = pd.getPostsByBoardId(boardId);
-    //                     break;
-    //                 case "general":
-    //                     posts = pd.getGeneralPostsByBoardId(boardId);
-    //                     break;
-    //                 case "curation":
-    //                     posts = pd.getCurationPostsByBoardId(boardId);
-    //                     break;
-    //                 default:
-    //                     return ResponseEntity.badRequest().body("유효하지 않은 mode 값입니다.");
-    //             }
-    //         }
-    
-    //         for (PostsDTO post : posts) {
-    //             int postId = post.getPostId();
-    //             post.setCommentCount(pd.countComments(postId));
-    //             post.setComments(pd.getCommentsByPostId(postId));
-    //             post.setMediaList(pd.getPostMedia(postId));
-    //         }
-    
-    //         return ResponseEntity.ok(posts);
-    
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //         return ResponseEntity.internalServerError().body("게시글 조회 실패");
-    //     }
-    // }
-    
     @GetMapping("/board/{boardId}/{mode}")
     public ResponseEntity<?> getPostsByBoardIdModeAndQuery(
         @PathVariable("boardId") int boardId,
@@ -500,7 +428,7 @@ public class postController {
                 post.setMediaList(pd.getPostMedia(postId));
 
                 // 추가: 큐레이션이면 MongoDB에서 세그먼트 붙이기
-                if ("curation".equals(modeNormalized)) {
+                if ("curation".equals(post.getType())) { // post.getType()을 사용하여 현재 게시글의 실제 타입 확인
                     List<CurationSegmentDoc> segments = mongoRepo.findByPostId(postId);
                     post.setCurationSegments(segments);
                 }
@@ -532,28 +460,24 @@ public class postController {
                     ? List.of() 
                     : pd.getFilteredPostsByBoardIdAndPostIds(boardId, postIds);
             } else {
-                // 검색 없을 때는 boardId 기반으로 MySQL에서 조회
+                // 검색 없을 때는 boardId 기반으로 MySQL에서 큐레이션 게시글만 조회
                 return pd.getCurationPostsByBoardId(boardId);
             }
         }
     
-        // 일반글 or 전체글 처리
+        // 일반글 또는 전체글 처리 (사용자 요청에 따라 "all" 모드도 "general" 타입 게시글만 반환)
         return isSearch
             ? switch (mode) {
-                case "all" -> pd.searchPostsByBoardIdAndQuery(boardId, query);
+                case "all" -> pd.searchGeneralPostsByBoardIdAndQuery(boardId, query); // "all" 모드일 때 일반 게시글 검색
                 case "general" -> pd.searchGeneralPostsByBoardIdAndQuery(boardId, query);
                 default -> throw new IllegalArgumentException("잘못된 mode");
             }
             : switch (mode) {
-                case "all" -> pd.getPostsByBoardId(boardId);
+                case "all" -> pd.getGeneralPostsByBoardId(boardId); // "all" 모드일 때 일반 게시글 조회
                 case "general" -> pd.getGeneralPostsByBoardId(boardId);
                 default -> throw new IllegalArgumentException("잘못된 mode");
             };
     }
-    
-
-
-    
     
     @PutMapping("/comments/{commentId}")
     public ResponseEntity<?> updateComment(
