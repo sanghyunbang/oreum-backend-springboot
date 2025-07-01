@@ -164,7 +164,7 @@ public class GoodsController {
 	}
 	@PostMapping("/deleteCart") // ApiService에서 호출하는 엔드포인트와 일치하는지 확인
 	public ResponseEntity<String> doDeleteCart(@RequestBody Map<String, List<Integer>> payload) {
-	    List<Integer> goodsOptionIds = payload.get("goodsOptionIds");
+	    List<Integer> goodsOptionIds = payload.get("id");
 
 	    if (goodsOptionIds == null || goodsOptionIds.isEmpty()) {
 	        // 리스트가 null이거나 비어있으면 에러 응답 또는 성공 응답 (백엔드 정책에 따라)
@@ -223,15 +223,15 @@ public class GoodsController {
 		goDAO.deleteOrder(id);
 	}
 	
-	@Scheduled(fixedRate = 600000) // 10분마다 실행
+	@Scheduled(fixedRate = 60000) // 10분마다 실행
     public void updateOrderStatusByTime() {
         LocalDateTime now = LocalDateTime.now();
 
-        // 1. 결제완료 → 10분 후 배송중
-        goDAO.updateToShipping(now.minusMinutes(10));
+        // 1. 결제완료 → 1분 후 배송중
+        goDAO.updateToShipping(now.minusMinutes(1));
 
-        // 2. 배송중 → 10분 후 배송완료
-        goDAO.updateToDelivered(now.minusMinutes(10));
+        // 2. 배송중 → 1분 후 배송완료
+        goDAO.updateToDelivered(now.minusMinutes(1));
     }
 	
 	//리뷰 기능
@@ -295,7 +295,7 @@ public class GoodsController {
     //포인트
     @PostMapping("/getUserPoints")
     public ResponseEntity<String> getUserPoints(@RequestBody Map<String, String> payload) {
-        String userIdString = payload.get("id");
+        String userIdString = payload.get("userId");
         if (userIdString == null || userIdString.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("User ID is required.");
         }
