@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.oreum.auth.dto.CustomOAuth2User;
 import com.oreum.auth.mapper.UserDao;
 import com.oreum.community.dto.FeednameDTO;
+import com.oreum.community.dto.MyCommunityJoinRequest;
 import com.oreum.community.dto.communityDTO;
 import com.oreum.community.mapper.communityMapper;
 import com.oreum.posts.dto.MyFeedDTO;
@@ -158,5 +161,60 @@ public class communityController {
         }
         return ResponseEntity.ok(allPosts);
     }
+
+    @PostMapping("/join")
+    public ResponseEntity<String> joinCommunity(@RequestBody Map<String, Object> req) {
+        System.out.println("✅ POST /join 도달");
+        System.out.println("✅ 받은 Map 데이터: " + req);
+    
+        try {
+            int userId = (int) req.get("userId");
+            String communityTitle = (String) req.get("communityTitle");
+            System.out.println("➡️ userId: " + userId);
+            System.out.println("➡️ communityTitle: " + communityTitle);
+    
+            Integer boardId = _comm.getBoardIdByTitle(communityTitle);
+            if (boardId == null) {
+                return ResponseEntity.badRequest().body("해당 커뮤니티를 찾을 수 없습니다.");
+            }
+    
+            int result = _comm.insertMyCommunity(boardId, userId);
+            return result > 0 ?
+                ResponseEntity.ok("가입 성공") :
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("가입 실패");
+    
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("요청 처리 중 오류 발생");
+        }
+    }
+
+    @GetMapping("/mycommunities")
+    public ResponseEntity<?> getMyCommunities(Authentication auth) {
+        if (!(auth.getPrincipal() instanceof CustomOAuth2User user)) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        int userId = _um.selectUserIdByEmail(user.getUserName());
+
+        List<String> communityTitles = _comm.getTitlesByUserId(userId); // XML에 작성한 SQL 사용
+        return ResponseEntity.ok(communityTitles);
+    }
+
+    //커뮤니티 탈퇴
+    @PostMapping("/leave")
+    public ResponseEntity<String> leaveCommunity(@RequestBody MyCommunityJoinRequest req) {
+        try {
+            System.out.println("탈퇴 요청 도착: userId=" + req.getUserId() + ", title=" + req.getCommunityTitle());
+            _comm.leaveCommunity(req.getUserId(), req.getCommunityTitle());
+            return ResponseEntity.ok("탈퇴 완료");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("탈퇴 실패");
+        }
+}
+
+
+    
 
 }

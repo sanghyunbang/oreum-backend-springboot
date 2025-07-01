@@ -104,4 +104,32 @@ select
   where board_id = #{boardId}
 </select>
 
+
+  <!-- 커뮤니티 제목으로 board_id 찾기 -->
+  <select id="getBoardIdByTitle" resultType="int">
+    SELECT board_id FROM boards WHERE title = #{title}
+  </select>
+
+  <!-- 가입 정보 저장 -->
+  <insert id="insertMyCommunity">
+    INSERT INTO my_community (board_id, user_id)
+    VALUES (#{boardId}, #{userId})
+  </insert>
+
+<select id="getTitlesByUserId" parameterType="int" resultType="string">
+  SELECT b.title
+  FROM my_community mc
+  JOIN boards b ON mc.board_id = b.board_id
+  WHERE mc.user_id = #{userId}
+</select>
+
+<delete id="leaveCommunity">
+  DELETE FROM my_community
+  WHERE user_id = #{userId}
+    AND board_id = (
+      SELECT board_id FROM boards WHERE title = #{communityTitle}
+    )
+</delete>
+
+
 </mapper>

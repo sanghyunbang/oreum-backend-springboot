@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.oreum.community.dto.FeednameDTO;
+import com.oreum.community.dto.MyCommunityJoinRequest;
 import com.oreum.community.dto.communityDTO;
 import com.oreum.posts.dto.MyFeedDTO;
 import com.oreum.posts.dto.PostsDTO;
@@ -30,4 +31,19 @@ public interface communityMapper {
     
     //테스트용
     List<PostsDTO> testcall(@Param("boardId") int BoarId);
+
+    // 관심 커뮤니티
+    // 커뮤니티 이름으로 board_id 조회
+    Integer getBoardIdByTitle(@Param("title") String title);
+
+    // 로그등록 (관심커뮤니티)
+    int insertMyCommunity(@Param("boardId") int boardId, @Param("userId") int userId);
+
+    // my_Community에서 불러오기
+    List<String> getTitlesByUserId(@Param("userId") int userId);
+
+    // 서브 커뮤니티 탈퇴
+    void leaveCommunity(@Param("userId") int userId, @Param("communityTitle") String communityTitle);
+
+
 }
